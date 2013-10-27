@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<!-- http://stackoverflow.com/questions/10565041/html-5-canvas-grid-block-fill-in -->
+<!-- saved from url=(0026)http://jsfiddle.net/draft/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+  <title> - jsFiddle demo</title>
+  <script type="text/javascript" src="jquery-1.10.1.js"></script>  
+  
+
+
+<script type="text/javascript"> 
+
+
+$(window).load(function(){
+
+    var pixel_1d = 10;
+
+    // get some info about the canvas
+    var canvas = document.getElementById('grid');
+    var ctx = canvas.getContext('2d');
+    var size = canvas.width / pixel_1d;
+
+    // how many cells fit on the canvas
+    var w = pixel_1d;
+    var h = pixel_1d;
+
+    // create empty state array
+    var state = new Array(h);
+    for (var x = 0; x < w; ++x) {
+        state[x] = new Array(h);
+    }
+
+    function pixel(px, py, flag)
+    {
+        if (flag) {
+            ctx.fillStyle = 'black';
+            state[px][py] = true;
+        } else {
+            ctx.fillStyle = 'white';
+            state[px][py] = false;
+        }
+        ctx.fillRect(px * size, py * size, size, size);
+    }
+
+
+    // click event, using jQuery for cross-browser convenience
+    $(canvas).click(function(e) {
+        // quick fill function to save repeating myself later
+        function fill(s, gx, gy) {
+            ctx.fillStyle = s;
+            ctx.fillRect(gx * size, gy * size, size, size);
+        }
+
+        // get mouse click position
+        var mx = e.offsetX;
+        var my = e.offsetY;
+
+        // calculate grid square numbers
+        var gx = ~~ (mx / size);
+        var gy = ~~ (my / size);
+    
+        // make sure we're in bounds
+        if (gx < 0 || gx >= w || gy < 0 || gy >= h) {
+            return;
+        }
+
+        if (state[gx][gy]) {
+            pixel(gx, gy, false);
+        } else {
+            pixel(gx, gy, true);
+        }
+    });
+
+    $('#myDiv').click(function(){
+        loadImage(); 
+    });
+
+
+
+
+    // http://www.ajaxblender.com/article-sources/jquery/convert-image-grayscale/index.html
+    function grayscaleImage(imgObj)
+    {
+        var canvas = document.createElement('canvas');
+        var canvasContext = canvas.getContext('2d');
+        
+        var imgW = imgObj.width;
+        var imgH = imgObj.height;
+        canvas.width = imgW;
+        canvas.height = imgH;
+        
+        canvasContext.drawImage(imgObj, 0, 0);
+        var imgPixels = canvasContext.getImageData(0, 0, imgW, imgH);
+        
+        for(var x = 0; x < imgPixels.width; x++){
+            for(var y = 0; y < imgPixels.height; y++){
+                var i = (y * 4) * imgPixels.width + x * 4;
+                var avg = (imgPixels.data[i] + imgPixels.data[i + 1] + imgPixels.data[i + 2]) / 3;
+                  if (avg > 127) {
+                      imgPixels.data[i] = 255;
+                      imgPixels.data[i + 1] = 255;
+                      imgPixels.data[i + 2] = 255;
+                  }
+                  else {
+                      imgPixels.data[i] = 0;
+                      imgPixels.data[i + 1] = 0;
+                      imgPixels.data[i + 2] = 0;
+                  }
+            }
+        }
+        
+        canvasContext.putImageData(imgPixels, 0, 0, 0, 0, imgPixels.width, imgPixels.height);
+
+
+        var x_space = ~~  (imgW / pixel_1d);
+        var y_space = ~~  (imgH / pixel_1d);
+        var blob_pixels = (x_space*y_space)/2; //Divide by two - more than half black
+        for(var x = 0; x < pixel_1d; x++){
+            for(var y = 0; y < pixel_1d; y++){
+                mono = 0;
+                for(var px = (x*x_space); px < ((x+1)*x_space); px++){
+                    for(var py = (y*y_space); py < ((y+1)*y_space); py++){
+                        var i = (py * 4) * imgPixels.width + px * 4;
+                        if (imgPixels.data[i] > 127) {
+                            mono++;
+                        }
+                    }
+                }
+                if (mono<blob_pixels) {
+                    pixel(x, y, true);
+                } else {
+                    pixel(x, y, false);
+
+                }
+            }
+        }
+
+
+
+
+        return canvas.toDataURL();
+    }
+    
+
+    // http://stackoverflow.com/questions/13938686/can-i-load-a-local-file-into-an-html-canvas-element
+    function loadImage() {
+        var input, file, fr, img;
+
+        if (typeof window.FileReader !== 'function') {
+            console.log("The file API isn't supported on this browser yet.");
+            return;
+        }
+
+        input = document.getElementById('imgfile');
+        if (!input) {
+            console.log("Um, couldn't find the imgfile element.");
+        }
+        else if (!input.files) {
+            console.log("This browser doesn't seem to support the `files` property of file inputs.");
+        }
+        else if (!input.files[0]) {
+            console.log("Please select a file before clicking 'Load'");
+            img = new Image();
+            img.onload = imageLoaded;
+            img.src = 'logo.jpg';
+
+        }
+        else {
+            file = input.files[0];
+            fr = new FileReader();
+            fr.onload = createImage;
+            fr.readAsDataURL(file);
+        }
+
+        function createImage() {
+            img = new Image();
+            img.onload = imageLoaded;
+            img.src = fr.result;
+        }
+
+        function imageLoaded() {
+            var canvas = document.getElementById("canvas")
+            target_width = 480;
+            target_height = 480;
+            target_ratio = target_width / target_height;
+            real_ratio = img.width / img.height;
+            if ( real_ratio > target_ratio ) {
+                canvas.width = target_width;
+                canvas.height = target_width / real_ratio;
+                }
+            else {
+                canvas.height = target_height;
+                canvas.width = target_height * real_ratio;
+                }
+
+            var ctx = canvas.getContext("2d");
+            img.src = grayscaleImage(img);
+            ctx.drawImage(img,0,0, canvas.width, canvas.height);
+        }
+
+    }
+
+#grayscaleImage(imgObj)
+    logoImage();
+
+});
+
+
+
+
+    $('#btn').click(function() {
+        alert("Hello");
+    });
+
+
+
+</script>
+
+
+</head>
+<body>
+    <form action='#' onsubmit="return false;">
+        <input type='file' id='imgfile' />
+        <input id="myDiv" type="button" value="button" />
+    </form>
+    <canvas id="canvas" width="480" height="480"></canvas>
+    <canvas id="grid" width="480" height="480"></canvas>
+
+
+
+</body>
+</html>
