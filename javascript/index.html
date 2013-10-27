@@ -6,12 +6,16 @@
   <script type="text/javascript" src="jquery-1.10.1.js"></script>  
   <script type="text/javascript" src="grid.js"></script>  
 </head>
-<body>
+<body bgcolor="gray">
+    <h2>The Toast</h2>
+    <h3>(click pixels to edit)</h3>
+    <canvas id="grid" width="480" height="480"></canvas>
+    <h2>Or upload New Image</h2>
     <form action='#' onsubmit="return false;">
         <input type='file' id='imgfile' />
-        <input id="loadImage" type="button" value="button" />
+        <input id="loadImage" type="button" value="Update" />
     </form>
+    <h2>Based upon this Image</h2>
     <canvas id="gray" width="480" height="480"></canvas>
-    <canvas id="grid" width="480" height="480"></canvas>
 </body>
 </html>

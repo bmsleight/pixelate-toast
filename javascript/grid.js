@@ -1,11 +1,8 @@
 $(document).ready(function(){
 
-
-
     // get some info about the canvas for grayscale image
     var canvas_gray = document.getElementById('gray');
     var ctx_gray = canvas_gray.getContext('2d');
-
     function gray_canvas_size(imgObj) {
         target_width = 480;
         target_height = 480;
@@ -21,21 +18,18 @@ $(document).ready(function(){
             canvas_gray.width = target_height * real_ratio;
             }
         }
-
     function imageLoaded() {
         img.src = grayscaleImage(img);
         gray_canvas_size(img);
         console.log(canvas_gray.height, canvas_gray.width);
         ctx_gray.drawImage(img,0,0, canvas_gray.width, canvas_gray.height);
         }
-
     img = new Image();
     img.onload = imageLoaded;
 
 
-    var pixel_1d = 12;
-
     // get some info about the canvas for grid
+    var pixel_1d = 12;
     var canvas_grid = document.getElementById('grid');
     var ctx_grid = canvas_grid.getContext('2d');
     var pixel_size = canvas_grid.width / pixel_1d;
@@ -46,10 +40,6 @@ $(document).ready(function(){
     for (var x = 0; x < w; ++x) {
         state[x] = new Array(h);
     }
-
-
-
-
     // Function to set a pixel
     function pixel(px, py, flag)
     {
@@ -85,16 +75,9 @@ $(document).ready(function(){
         }
     });
 
-
-    $('#loadImage').click(function(){
-        loadImage(); 
-    });
-
-
-
-
-    // http://www.ajaxblender.com/article-sources/jquery/convert-image-grayscale/index.html
+    // Adapted from http://www.ajaxblender.com/article-sources/jquery/convert-image-grayscale/index.html
     function grayscaleImage(imgObj){
+        // Make the canvas in bigger for now..
         canvas_gray.width = imgObj.width;
         canvas_gray.height = imgObj.height;        
         ctx_gray.drawImage(imgObj, 0, 0);
@@ -116,9 +99,10 @@ $(document).ready(function(){
             }
         }
         
+        // Write the image to the canvas, so we can use the monochrome
         ctx_gray.putImageData(imgPixels, 0, 0, 0, 0, imgPixels.width, imgPixels.height);
 
-
+        // Leabing Javascript - but ~~ was key
         var x_space = ~~  (canvas_gray.width / pixel_1d);
         var y_space = ~~  (canvas_gray.height / pixel_1d);
         var blob_pixels = (x_space*y_space)/2; //Divide by two - more than half black
@@ -141,22 +125,18 @@ $(document).ready(function(){
                 }
             }
         }
-
-
-
+        // Pass back the data
         return canvas_gray.toDataURL();
     }
     
 
-    // http://stackoverflow.com/questions/13938686/can-i-load-a-local-file-into-an-html-canvas-element
+    // Adapted from http://stackoverflow.com/questions/13938686/can-i-load-a-local-file-into-an-html-canvas-element
     function loadImage() {
         var input, file, fr;
-
         if (typeof window.FileReader !== 'function') {
             console.log("The file API isn't supported on this browser yet.");
             return;
         }
-
         input = document.getElementById('imgfile');
         if (!input) {
             console.log("Um, couldn't find the imgfile element.");
@@ -173,20 +153,21 @@ $(document).ready(function(){
             fr.onload = createImage;
             fr.readAsDataURL(file);
         }
-
         function createImage() {
 //            img = new Image();
 //            img.onload = imageLoaded;
             img.src = fr.result;
         }
-
-
     }
 
-    // Set Default Logo
-    // convert -pointsize 356  label:'TP' -fill black -pointsize 48 -gravity SouthWest label:'Pixels in toast.' -composite logo.png
-    img.src = './logo.png';
+    // Link loadImage to button
+    $('#loadImage').click(function(){
+        loadImage(); 
+    });
 
+    // Set Default Logo
+    // convert -pointsize 356  label:'PT' -fill black -pointsize 48 -gravity SouthWest label:'-- Pixelate Toast --' -composite logo.png
+    img.src = './logo.png';
 });
 
 
