@@ -165,20 +165,21 @@ $(document).ready(function(){
         loadImage(); 
     });
 
-    // Set Default Logo
-    // convert -pointsize 356  label:'PT' -fill black -pointsize 48 -gravity SouthWest label:'-- Pixelate Toast --' -composite logo.png
-    img.src = './logo.png';
-});
-
-
-
-
-
-
     $('#btn').click(function() {
         alert("Hello");
     });
 
+    $('#toastIt').click(function(e) {
+        e.preventDefault();
+        $('#toastItForm').attr('action', "/test1").submit();
+    });
 
+
+    // Set Default Logo
+    // convert -pointsize 356  label:'PT' -fill black -pointsize 48 -gravity SouthWest label:'-- Pixelate Toast --' -composite logo.png
+    img.src = './logo.png';
+
+
+});
 
 
