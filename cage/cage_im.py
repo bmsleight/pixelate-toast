@@ -9,11 +9,11 @@ from solid import screw_thread
 
 SEGMENTS = 120
 
-min_wire_free = 1
-frame_length = 7.5
+#min_wire_free = 1
+#frame_length = 7.5
 
-#min_wire_free = 1.5
-#frame_length = 9
+min_wire_free = 1.5
+frame_length = 9
 
 bread_base = 12
 
@@ -33,6 +33,19 @@ Clearance: 0.5mm
 Accuracy: ± 0.15mm, then ± 0.15% of longest axis
 '''
 
+def frame(maxx=3, maxy=3):
+    maxy = int(maxy)
+    maxx = int(maxx)
+    frame_wire = min_wire_free*1.5
+    strut = cube([frame_wire, frame_wire, maxy*frame_length+bread_base+frame_length], center=False)
+    strut = back((frame_wire)/2)(left(frame_wire)(down(frame_wire/2)(strut)))
+    f = strut + right(maxx*frame_length+frame_wire)(strut)
+
+
+#    f = cube([maxx*frame_length, min_wire_free*3, maxy*frame_length], center=False)
+    return f
+
+
 
 def door(position = 2, tab_holder_upright = True, top_tab_extra = False, end_x = False, show = True):
 # cylinder(r=battery_diameter_bottom/2, h=battery_h_bottom)
@@ -50,8 +63,8 @@ def door(position = 2, tab_holder_upright = True, top_tab_extra = False, end_x =
         # Dont need upright at the very top
         pass
     else:
-        f += cylinder(r=min_wire_free/2, h=frame_length)
-
+#        f += cylinder(r=min_wire_free/2, h=frame_length)
+        pass
     if end_x:
         return f 
     else:
@@ -89,7 +102,8 @@ def door(position = 2, tab_holder_upright = True, top_tab_extra = False, end_x =
     k = right(frame_length/2-min_wire_free*2)(k) + right(frame_length/2+min_wire_free)(k)
     if top_tab_extra:
         # Long based on bottom
-        k += up(0)(right(min_wire_free*1.5)(cylinder(r=min_wire_free/2, h=frame_length*2)))
+        # Hanging down from Bread....
+#        k += up(0)(right(min_wire_free*1.5)(cylinder(r=min_wire_free/2, h=frame_length*2)))
         k += up(frame_length*2)(right(min_wire_free)(back(frame_length/2)(cube([min_wire_free, bread_base+frame_length, min_wire_free], center=False))))
         k += up(frame_length*2)(right(0)(back(min_wire_free/2)(cube([frame_length, min_wire_free, min_wire_free], center=False) )))
     if top_tab_extra:
@@ -146,12 +160,20 @@ if __name__ == '__main__':
                     default="3", help='y')
     parser.add_argument('-j', action='store', dest='just',
                     default="-1", help='Just print out row j')
-
+    parser.add_argument('-m', action='store_true', default=False,
+                    dest='frame',
+                    help='Draw the bulky outside frame')
+    parser.add_argument('-n', action='store_true', default=False,
+                    dest='nodoors',
+                    help='Dont draw the doors (everythign but the frame')
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
     options = parser.parse_args()
 
     a = union()
-    a = a + doors(random_pos = options.random_pos, maxx=options.x, maxy=options.y, just = int(options.just) ) 
+    if options.frame:
+        a = a + frame(maxx=options.x, maxy=options.y)
+    if not options.nodoors:
+        a = a + doors(random_pos = options.random_pos, maxx=options.x, maxy=options.y, just = int(options.just) ) 
     fn = '$fn=' + options.fn + ';'
     scad_render_to_file( a, options.openscad, include_orig_code=True, file_header=fn)
 

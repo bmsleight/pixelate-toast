@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title> - jsFiddle demo</title>
+  
+  <script type='text/javascript' src='//code.jquery.com/jquery-1.9.1.js'></script>
+  
+  
+  
+  <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+  
+  <style type='text/css'>
+    
+  </style>
+  
+
+
+<script type='text/javascript'>//<![CDATA[ 
+$(window).load(function(){
+$(".move_to").on("click", function(e){
+    e.preventDefault();
+    $('#toastItForm').attr('action', "/test1").submit();
+});
+
+$(".check").on("click", function(e){
+    e.preventDefault();
+    alert($('#toastItForm').attr('action'));
+});
+});//]]>  
+
+</script>
+
+
+</head>
+<body>
+  <form id="contactsForm">
+    <input type="text" value="test" />
+</form>
+<a href="#" class="move_to">Set action attribute.</a>
+<a href="#" class="check">Check action attribute.</a>
+  
+</body>
+
+
+</html>
