@@ -10,4 +10,4 @@ done
 python cage_im.py -s test.scad  -x 15 -y 15 -j $i -n -m ; openscad -o rows/frame.stl test.scad
 
 # Use meshlabserver to cobin into one stl file
-meshlabserver -i ./rows/* -o cage_mesh_cleaned.stl -s mesh_flatten.mlx
+meshlabserver -i ./rows/* -o cage_mesh_not_clean.stl -s mesh_flatten.mlx
