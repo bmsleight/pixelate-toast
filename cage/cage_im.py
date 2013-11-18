@@ -9,11 +9,11 @@ from solid import screw_thread
 
 SEGMENTS = 120
 
-#min_wire_free = 1
-#frame_length = 7.5
+min_wire_free = 1
+frame_length = 7.5
 
-min_wire_free = 1.5
-frame_length = 9
+#min_wire_free = 1.5
+#frame_length = 9
 
 bread_base = 12
 
@@ -36,10 +36,10 @@ Accuracy: ± 0.15mm, then ± 0.15% of longest axis
 def frame(maxx=3, maxy=3):
     maxy = int(maxy)
     maxx = int(maxx)
-    frame_wire = min_wire_free*1.5
-    strut = cube([frame_wire, frame_wire, maxy*frame_length+bread_base+frame_length], center=False)
-    strut = back((frame_wire)/2)(left(frame_wire)(down(frame_wire/2)(strut)))
-    f = strut + right(maxx*frame_length+frame_wire)(strut)
+    frame_wire = min_wire_free*2
+    strut = cube([frame_wire, frame_wire, maxy*frame_length+bread_base+frame_length/1.5], center=False)
+    strut = back((frame_wire)/2)(left(frame_wire*0.75)(down(frame_wire/2)(strut)))
+    f = strut + right(maxx*frame_length+(frame_wire*0.5))(strut)
 
 
 #    f = cube([maxx*frame_length, min_wire_free*3, maxy*frame_length], center=False)
@@ -47,7 +47,7 @@ def frame(maxx=3, maxy=3):
 
 
 
-def door(position = 2, tab_holder_upright = True, top_tab_extra = False, end_x = False, show = True):
+def door(position = 2, tab_holder_upright = True, top_tab_extra = False, end_x = False, show = True, vert_connector = False):
 # cylinder(r=battery_diameter_bottom/2, h=battery_h_bottom)
     if show == False:
         return union()
@@ -63,7 +63,8 @@ def door(position = 2, tab_holder_upright = True, top_tab_extra = False, end_x =
         # Dont need upright at the very top
         pass
     else:
-#        f += cylinder(r=min_wire_free/2, h=frame_length)
+        if vert_connector:
+            f += cylinder(r=min_wire_free/2, h=frame_length)
         pass
     if end_x:
         return f 
@@ -103,7 +104,8 @@ def door(position = 2, tab_holder_upright = True, top_tab_extra = False, end_x =
     if top_tab_extra:
         # Long based on bottom
         # Hanging down from Bread....
-#        k += up(0)(right(min_wire_free*1.5)(cylinder(r=min_wire_free/2, h=frame_length*2)))
+        if vert_connector:
+            k += up(0)(right(0)(cylinder(r=min_wire_free/2, h=frame_length*2)))
         k += up(frame_length*2)(right(min_wire_free)(back(frame_length/2)(cube([min_wire_free, bread_base+frame_length, min_wire_free], center=False))))
         k += up(frame_length*2)(right(0)(back(min_wire_free/2)(cube([frame_length, min_wire_free, min_wire_free], center=False) )))
     if top_tab_extra:
@@ -136,11 +138,15 @@ def doors(random_pos =False , maxx=3, maxy=3, just = -1):
                 top_tab_extra = True
             else:
                 top_tab_extra = False
+            if (x%5)==0:
+                vert_connector = True
+            else:
+                vert_connector = False
             if random_pos:
                 r = random.choice([0,1]) 
-                d = door(r, tab_holder_upright, top_tab_extra, end_x, show)
+                d = door(r, tab_holder_upright, top_tab_extra, end_x, show, vert_connector)
             else:
-                d = door(tab_holder_upright = tab_holder_upright, top_tab_extra = top_tab_extra, end_x = end_x, show = show)
+                d = door(tab_holder_upright = tab_holder_upright, top_tab_extra = top_tab_extra, end_x = end_x, show = show, vert_connector = vert_connector)
             ds += right(x*frame_length)(up(y*frame_length)(d))
 #    ds += back(min_wire_free/2)(left(min_wire_free/2)(down(min_wire_free/2)(cube([min_wire_free, min_wire_free, min_wire_free], center=False))))
     return ds
