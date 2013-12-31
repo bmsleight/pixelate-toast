@@ -6,10 +6,13 @@
   <script type="text/javascript" src="jquery-1.10.1.js"></script>  
   <script type="text/javascript" src="grid.js"></script>  
 </head>
-<body bgcolor="gray">
+<body bgcolor="Sienna">
     <h2>The Toast</h2>
     <h3>(click pixels to edit)</h3>
     <canvas id="grid" width="480" height="480"></canvas>
+    <form id="toastItForm">
+        <input id="toastIt" type="button" value="Toast It!" />
+    </form>
     <h2>Or upload New Image</h2>
     <form action='#' onsubmit="return false;">
         <input type='file' id='imgfile' />
@@ -21,13 +24,5 @@
 
 
 
-    <form id="toastItForm">
-        <input id="toastIt" type="button" value="Toast It!" />
-    </form>
-<a href="#" class="move_to">Set action attribute.</a>
-<a href="#" class="check">Check action attribute.</a>
-  
-
-   -->
 </body>
 </html>

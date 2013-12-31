@@ -43,14 +43,27 @@ $(document).ready(function(){
     // Function to set a pixel
     function pixel(px, py, flag)
     {
+        var fs = '';
         if (flag) {
-            ctx_grid.fillStyle = 'black';
+            fs = 'Wheat';
             state[px][py] = true;
         } else {
-            ctx_grid.fillStyle = 'white';
+            fs = 'Peru';
             state[px][py] = false;
         }
-        ctx_grid.fillRect(px * pixel_size, py * pixel_size, pixel_size, pixel_size);
+
+//        ctx_grid.fillRect(px * pixel_size, py * pixel_size, pixel_size, pixel_size);
+          ctx_grid.beginPath();
+          center_x = (px * pixel_size) + (pixel_size/2.0)
+          center_y = (py * pixel_size) + (pixel_size/2.0)
+
+          ctx_grid.arc(center_x, center_y , pixel_size/4, 0, 6.28, false);
+          ctx_grid.fillStyle = fs;
+          ctx_grid.fill();
+          ctx_grid.lineWidth = 1;
+          ctx_grid.strokeStyle = fs;
+          ctx_grid.stroke();
+
     }
 
     // click event, using jQuery for cross-browser convenience
@@ -179,6 +192,21 @@ $(document).ready(function(){
     // convert -pointsize 356  label:'PT' -fill black -pointsize 48 -gravity SouthWest label:'-- Pixelate Toast --' -composite logo.png
     img.src = './logo.png';
 
+
+
+      var canvas = document.getElementById('gray');
+      var context = canvas.getContext('2d');
+      var centerX = canvas.width / 2;
+      var centerY = canvas.height / 2;
+      var radius = 70;
+
+      context.beginPath();
+      context.arc(centerX, centerY, radius, 0, 7, false);
+      context.fillStyle = 'green';
+      context.fill();
+      context.lineWidth = 5;
+      context.strokeStyle = '#003300';
+      context.stroke();
 
 });
 
