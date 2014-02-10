@@ -10,6 +10,7 @@ top_clip_length = 30;
 
 
 whole_machine();
+//parts();
 
 module back_plate() {
     color("Sienna") {
@@ -26,21 +27,21 @@ module back_plate() {
 module top_holder(c_size = connector) {
     color("Blue") translate([0, connector/2, back_plate_size/2 + connector/2]) {
         rotate([0, 180, 90]) {
-            precursor_simple_connector(connector,0, 5);
+            translate([0, 0, -connector]) precursor_simple_connector(connector,0, 5);
             translate([wood_thickness, 0, 0]) cube(size = [wood_thickness, top_holder_length, 10], center = true);
         }
         rotate([0, -90, 0]) {
             mirror([ 0, 0, 0 ]) translate([-connector/2, wood_thickness/2, top_holder_length/2-connector/2])  precursor_simple_connector(connector);
             mirror([ 0, 0, 1 ]) translate([-connector/2, wood_thickness/2, top_holder_length/2-connector/2])  precursor_simple_connector(connector);
         }
-        translate([0, -wood_thickness, connector]) cube(size = [connector, wood_thickness, connector*2], center = true);
-        translate([0, -wood_thickness+ connector/4, connector*1.5]) rotate([90, 0, 0]) cylinder(h = connector*.5, r=connector/4, center = true);
+        translate([0, -wood_thickness, connector*1.25]) cube(size = [connector, wood_thickness, connector*3.5], center = true);
+        translate([0, -wood_thickness+ connector/4, connector*2.5]) rotate([90, 0, 0]) cylinder(h = connector*.5, r=connector/4, center = true);
 
     }
 }
 
 module top_clip(c_size = connector) {
-    color("Blue") translate([0, connector*1.5, back_plate_size/2 + connector/2]) {
+    color("Blue") translate([0, connector*1.5, back_plate_size/2 + connector*1.5]) {
         rotate([0, 0, 90]) {
             translate([0, connector, 0]) precursor_simple_connector(connector,0, 5);
             translate([0, -connector, 0]) precursor_simple_connector(connector,0, 5);
@@ -48,12 +49,12 @@ module top_clip(c_size = connector) {
         }
         translate([0, wood_thickness, connector])  cube(size = [10, wood_thickness, 20], center = true);
         translate([0, connector*.25, 15])  rotate([90, 0, 0]) cylinder(h = connector*.5, r=connector/4, center = true);
-        translate([0, wood_thickness, -connector*1.5]) {
+        translate([0, wood_thickness, -connector*2]) {
             difference() {
-               cube(size = [top_clip_length, wood_thickness, connector*3.5], center = true);
+               cube(size = [top_clip_length, wood_thickness, connector*4.5], center = true);
                rotate([90, 0, 0]) translate([0, connector/8, 0]) cylinder(h = connector, r=connector/4, center = true);
             }
-        translate([0, -connector/2, -15]) cube(size = [top_clip_length, wood_thickness, connector/2], center = true);
+        translate([0, -connector/2, -connector*2]) cube(size = [top_clip_length, wood_thickness, connector/2], center = true);
         }
     }
 }
@@ -109,6 +110,11 @@ module precursor_simple_connector_side_pins(c_size) {
     translate([c_size/2, -c_size/2, -c_size]) rotate([90, 0, 0]) cylinder(h = c_size*2, r=c_size/4, center = true);
 }
 
+module parts() {
+//    simple_connector(connector, 1);
+//    translate([0, -connector*1.5, -(back_plate_size/2 + connector*1.5)]) top_clip();
+//    translate([0, -connector/2, -(back_plate_size/2 + connector/2)]) top_holder();
+}
 
 
 
