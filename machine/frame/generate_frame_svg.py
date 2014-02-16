@@ -177,24 +177,29 @@ def set_of_tabs(svg, total_length, number_sets = 2, along = True, offset_in_from
 
 
 
-def base(svg, direction = ""):
+def base(svg, direction = "", big = True, slots = 1):
 #    length = 300
 #    length_back = 200
-    length = 150
     length_back = 100
-    set_of_slots(svg, length_back, 2, along = True, offset_in_from_edge = 0)
-    set_of_slots(svg, length_back, 2, along = True, offset_in_from_edge = length - svg.thickness_mm*5)
-    set_of_slots(svg, length_back, 2, along = False, offset_in_from_edge = 0, offset_along_from_edge = (length-length_back)/2)
+    length = 150
+    if big:
+        length_depth = length
+    else:
+        length_depth = length_back
+
+    set_of_slots(svg, length_back, slots, along = True, offset_in_from_edge = 0)
+    set_of_slots(svg, length_back, slots, along = True, offset_in_from_edge = length - svg.thickness_mm*5)
+    set_of_slots(svg, length_back, slots, along = False, offset_in_from_edge = 0, offset_along_from_edge = (length-length_back)/2)
 
     # outline
-    svg.path( [(0,0), (length,0), (length,length), (0,length), (0,0)], direction = direction )
+    svg.path( [(0,0), (length,0), (length,length_depth), (0,length_depth), (0,0)], direction = direction )
 
 
-def side(svg, direction = ""):
+def side(svg, direction = "", slots = 1):
     length = 150
     length_back = 100
-    set_of_tabs(svg, length_back, 2, along = True, offset_in_from_edge = 0)
-    set_of_tabs(svg, length_back, 2, along = True, offset_in_from_edge = 0, mirror = (length,0) )
+    set_of_tabs(svg, length_back, slots, along = True, offset_in_from_edge = 0)
+    set_of_tabs(svg, length_back, slots, along = True, offset_in_from_edge = 0, mirror = (length,0) )
 
     svg.path( [(svg.thickness_mm,0), (length-svg.thickness_mm,0), (length-svg.thickness_mm,length_back), (svg.thickness_mm,length_back), (svg.thickness_mm,0)], direction = direction )
 
@@ -213,10 +218,11 @@ def main():
 
 
     svg = svgClass(thickness_mm=thickness_mm)
-    base(svg, "right")
+    base(svg, "right", big = False)
     base(svg, "down_and_zero")
     side(svg, "right_and_a_bit")
     side(svg, "down_and_zero")
+    side(svg, "right_and_a_bit")
     print svg.dump()
 
 
