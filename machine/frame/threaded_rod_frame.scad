@@ -8,6 +8,15 @@ connector_offset = 20;
 
 co = connector_offset;
 
+//Used for loops
+sl_f = -sl/2-radius_tr*2;
+sl_i = sl+radius_tr*4;
+sl_t = sl/2+radius_tr*2;
+sxl_f = -sxl/2-radius_tr*2;
+sxl_i = sxl+radius_tr*4;
+sxl_t = sxl/2+radius_tr*2;
+
+
 module screwthread(h=sl, r=radius_tr, center=true) 
 {
     color("DarkGray") cylinder(h=h, r=r, center=center);
@@ -20,28 +29,33 @@ module screwbase(t = [0,0,0], a = [0,0,0], h=sl, r=radius_tr, center=true)
 
 module frame_base() 
 { 
-    for ( y = [-sl/2+co : sl-co*2 : sl/2-co] )
+
+
+
+
+ 
+    for ( y = [sl_f : sl_i: sl_t] )
     {
-        for ( z = [-sl/2 : sl : sl/2] )
+        for ( z = [sl_f : sl_i: sl_t] )
         {
            screwbase([0, y, z], [0,90,0], h=sxl);
         }
     }
 
-    for ( x = [-sxl/2+co*2 : sxl-co*4 : sxl/2-co*2] )
+    for ( x = [sxl_f : sxl_i: sxl_t] )
     {
-        screwbase([x, -sl/2+co*2, 0], [0,0,90], h=sl);
+        screwbase([x, -sl/2-radius_tr*2, 0], [0,0,90], h=sl);
     }
 
 
-    for ( x = [-sxl/2+co*2 : sxl-co*4 : sxl/2-co*2] )
+    for ( x = [sxl_f : sxl_i: sxl_t] )
     {
-        screwbase([x, sl/2-co*2, (sxl-sl)/2], [0,0,90], h=sxl);
+        screwbase([x, sl/2+radius_tr*2, (sxl-sl)/2], [0,0,90], h=sxl);
     }
 
-    for ( x = [-sxl/2+co : sxl-co*2 : sxl/2-co] )
+    for ( x = [sxl_f : sxl_i: sxl_t]  )
     {
-        for ( z = [-sl/2+co : sl-co*2 : sl/2-co] )
+        for ( z = [sl_f : sl_i: sl_t] )
         {
             screwbase([x, 0, z], [90,0,0]);
         }
@@ -70,20 +84,37 @@ module frame_ramp()
 }
 
 
-module connector() {
-
-    color("Blue",0.5)  difference() {
-    cube([co*2,co*2,co*3], center=true);
-    translate([co,co,-co*1.5])  cube([co*2,co*2,co*4], center=true);
-
-    translate([-co*1.5,-co*1.5,-co])
-    {
-        screwbase([sxl/2, co, 0], [0,90,0], h=sxl, r=radius_tr*1.25);
-        screwbase([+co, sxl/2, co], [90,0,0], h=sxl, r=radius_tr*1.25);
-        screwbase([co*2, co*2,sxl/2+co], [0,0,90], h=sxl,r=radius_tr*1.25);
+// m6 Width Across Corners 11.05
+module connector()
+{
+    hole_r = radius_tr *1.25;
+    d = (radius_tr*2);
+    unit = (d*2); //12
+    co_h = unit*2.25;
+    difference() {
+        translate([-unit/2,-unit/2,-unit/2]) cube([co_h,co_h,co_h], center=true);
+        translate([0,0,0]) cube([co_h,co_h,co_h], center=true);
+        translate([0,0,-co_h]) cylinder(h=co_h, r=hole_r, center=center);
+        rotate([0,270,0]) translate([0,0,0]) cylinder(h=co_h, r=hole_r, center=center);
+        rotate([90,0,0]) translate([0,0,0]) cylinder(h=co_h, r=hole_r, center=center);
     }
+}
 
-    }
+
+module floor_connectors() 
+{
+//    translate([-sxl/2,-sl/2-6,-sl]) rotate([180,90,0]) connector();
+//[sxl_f,sl_f,-sl-radius_tr*2]
+
+    translate([sxl_f,sl_f,-sl-radius_tr*2]) rotate([180,90,0]) connector();
+    translate([sxl_t,sl_f,-sl-radius_tr*2]) rotate([180,90,90]) connector();
+    translate([sxl_t,sl_t,-sl-radius_tr*2]) rotate([180,90,180]) connector();
+    translate([sxl_f,sl_t,-sl-radius_tr*2]) rotate([180,90,270]) connector();
+}
+
+module mid_connectors() 
+{
+    translate([0,0, -sl]) rotate([0,180,0]) floor_connectors();
 
 }
 
@@ -95,13 +126,15 @@ module base_plate()
 
 
 
-
 module frame ()
 {
     translate([0,0,-sl/2]) frame_base();
     translate([0,0,sl/2]) frame_ramp();
     base_plate();
-    translate([-sxl/2+co*1.5,-sl/2+co*1.5,-sl+co]) connector();
+    floor_connectors();
+    mid_connectors();
 }
+
+connector();
 
 frame();
