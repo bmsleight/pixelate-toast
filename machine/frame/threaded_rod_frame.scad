@@ -64,10 +64,12 @@ module frame_base()
 
 module frame_ramp()
 {
+    screwbase(t = [sxl_f,sl_f,radius_tr*4], a=[0,0,90], h=sl);
+    screwbase(t = [sxl_t,sl_f,radius_tr*4], a=[0,0,90], h=sl);
+
     screwbase(t = [sxl/2,0,0], a=[45,0,0], h=sxl);
     screwbase(t = [-sxl/2,0,0], a=[45,0,0], h=sxl);
-    screwbase(t = [-sxl/2,-sl/2,0], a=[0,0,90], h=sl);
-    screwbase(t = [sxl/2,-sl/2,0], a=[0,0,90], h=sl);
+
     screwbase(t = [0,-sl/2,sl/2], a=[0,90,0], h=sxl);
 
     // Top of backing board
@@ -87,17 +89,36 @@ module frame_ramp()
 // m6 Width Across Corners 11.05
 module connector()
 {
+
     hole_r = radius_tr *1.25;
     d = (radius_tr*2);
     unit = (d*2); //12
     co_h = unit*2.25;
-    difference() {
-        translate([-unit/2,-unit/2,-unit/2]) cube([co_h,co_h,co_h], center=true);
+    color("RoyalBlue") difference() {
+//        translate([-unit/2,-unit/2,-unit/2]) cube([co_h,co_h,co_h], center=true);
+
+    union () hull()
+    {
+        translate([0,0,-unit/2]) cylinder(h=co_h, r=hole_r*2, center=true);
+        rotate([0,270,0]) translate([0,0,unit/2]) cylinder(h=co_h, r=hole_r*2, center=true);
+        rotate([90,0,0]) translate([0,0,unit/2]) cylinder(h=co_h, r=hole_r*2, center=true);
+        translate([-co_h/2-unit/4,-co_h/2-unit/4,-co_h/2-unit/4]) cube([unit/2,unit/2,unit/2], center=true);
+    }
+
+
         translate([0,0,0]) cube([co_h,co_h,co_h], center=true);
         translate([0,0,-co_h]) cylinder(h=co_h, r=hole_r, center=center);
         rotate([0,270,0]) translate([0,0,0]) cylinder(h=co_h, r=hole_r, center=center);
         rotate([90,0,0]) translate([0,0,0]) cylinder(h=co_h, r=hole_r, center=center);
     }
+}
+
+
+module double_flat_connector()
+{
+    shift= ((radius_tr*2)*2)*2.25;
+        connector();
+    mirror([ 1, 0, 0 ]) connector();
 }
 
 
@@ -114,7 +135,11 @@ module floor_connectors()
 
 module mid_connectors() 
 {
-    translate([0,0, -sl]) rotate([0,180,0]) floor_connectors();
+//    translate([0,0, -sl]) rotate([0,180,0]) floor_connectors();
+
+    translate([sxl_f,sl_f,radius_tr*2]) rotate([180,90,0]) double_flat_connector();
+    translate([sxl_t,sl_f,radius_tr*2]) rotate([180,90,90]) double_flat_connector();
+
 
 }
 
@@ -134,6 +159,8 @@ module frame ()
     floor_connectors();
     mid_connectors();
 }
+
+double_flat_connector();
 
 connector();
 
