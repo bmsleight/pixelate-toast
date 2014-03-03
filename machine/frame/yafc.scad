@@ -10,14 +10,14 @@ module yafc(ang=0)
 {
     r = radius_tr;
     hyp = sqrt(r*3*r*3*2);
-    rotate([ang,0,0]) difference() 
+    rotate([0,ang,0]) difference() 
     {
         hull() 
         {
             translate([r*9, r*9, 0])  cylinder(h=r*2, r=r*3, center=true);
             translate([hyp/2-r, hyp/2-r, 0])  cube([hyp, hyp, r*2], center=true);
         }
-#    translate([r*9, r*9, 0])  cylinder(h=r*8, r=r, center=true);
+#    translate([r*9, r*9, 0])  cylinder(h=r*24, r=r, center=true);
 
     }
 }
@@ -34,17 +34,15 @@ module connector()
 
 
 
-module connector_center() 
+module connector_angled_a() 
 {
     translate([-radius_tr*9, -radius_tr*9, radius_tr*9]) 
     {
         rotate([0,0,0])  yafc() ;
         rotate([0,90,0])  yafc() ;
-        translate([0, 0, -radius_tr]) rotate([-90,0,0]) yafc(ang=-45) ;
+        translate([radius_tr, radius_tr/2, 0]) rotate([-90,0,0]) yafc(ang=-45	) ;
     }
 }
 
-connector();
-
-//connector_center();
+rotate([90,90,0]) connector_angled_a();
 

@@ -79,7 +79,7 @@ module frame_ramp()
     screwbase(t = [sxl/2,(sl/2-sl/3),-sl/(3*2)], a=[-45,0,0], h=sl);
     screwbase(t = [-sxl/2,(sl/2-sl/3),-sl/(3*2)], a=[-45,0,0], h=sl);
 
-    screwbase(t = [0,sl/2,-sl/2], a=[0,90,0], h=sxl);
+   // screwbase(t = [0,sl/2,-sl/2], a=[0,90,0], h=sxl);
     screwbase(t = [0,sl/2-sl/(3*2),0], a=[0,90,0], h=sxl);
     screwbase(t = [0,sl/2,sl/2-sl/3], a=[0,90,0], h=sxl);
 
@@ -87,29 +87,40 @@ module frame_ramp()
 
 
 // m6 Width Across Corners 11.05
-module connector()
+module yafc(ang=0) 
 {
-
-    hole_r = radius_tr *1.25;
-    d = (radius_tr*2);
-    unit = (d*2); //12
-    co_h = unit*2.25;
-    color("RoyalBlue") difference() {
-//        translate([-unit/2,-unit/2,-unit/2]) cube([co_h,co_h,co_h], center=true);
-
-    union () hull()
+    r = radius_tr;
+    hyp = sqrt(r*3*r*3*2);
+    rotate([0,ang,0]) difference() 
     {
-        translate([0,0,-unit/2]) cylinder(h=co_h, r=hole_r*2, center=true);
-        rotate([0,270,0]) translate([0,0,unit/2]) cylinder(h=co_h, r=hole_r*2, center=true);
-        rotate([90,0,0]) translate([0,0,unit/2]) cylinder(h=co_h, r=hole_r*2, center=true);
-        translate([-co_h/2-unit/4,-co_h/2-unit/4,-co_h/2-unit/4]) cube([unit/2,unit/2,unit/2], center=true);
+        hull() 
+        {
+            translate([r*9, r*9, 0])  cylinder(h=r*2, r=r*3, center=true);
+            translate([hyp/2-r, hyp/2-r, 0])  cube([hyp, hyp, r*2], center=true);
+        }
+    translate([r*9, r*9, 0])  cylinder(h=r*24, r=r*1.25, center=true);
+
     }
+}
+
+module connector() 
+{
+    translate([-radius_tr*9, -radius_tr*9, radius_tr*9]) 
+    {
+        rotate([0,0,0])  yafc() ;
+        rotate([0,90,0])  yafc() ;
+        rotate([-90,0,0]) yafc() ;
+    }
+}
 
 
-        translate([0,0,0]) cube([co_h,co_h,co_h], center=true);
-        translate([0,0,-co_h]) cylinder(h=co_h, r=hole_r, center=center);
-        rotate([0,270,0]) translate([0,0,0]) cylinder(h=co_h, r=hole_r, center=center);
-        rotate([90,0,0]) translate([0,0,0]) cylinder(h=co_h, r=hole_r, center=center);
+module connector() 
+{
+    rotate([90,0,0]) translate([-radius_tr*9, -radius_tr*9, radius_tr*9]) 
+    {
+        rotate([0,0,0])  yafc() ;
+        rotate([0,90,0])  yafc() ;
+        rotate([-90,0,0]) yafc() ;
     }
 }
 
@@ -119,6 +130,26 @@ module double_flat_connector()
     shift= ((radius_tr*2)*2)*2.25;
         connector();
     mirror([ 1, 0, 0 ]) connector();
+}
+
+
+module double_angled_connector()
+{
+    shift= ((radius_tr*2)*2)*2.25;
+        connector_angled_a();
+     rotate([180,0,180]) mirror([0,1,0]) connector();
+}
+
+
+
+module connector_angled_a() 
+{
+    translate([-radius_tr*9, -radius_tr*9, radius_tr*9]) 
+    {
+        rotate([0,0,0])  yafc() ;
+        rotate([0,90,0])  yafc() ;
+        translate([radius_tr, radius_tr/2, 0]) rotate([-90,0,0]) yafc(ang=-45	) ;
+    }
 }
 
 
@@ -140,6 +171,7 @@ module mid_connectors()
     translate([sxl_f,sl_f,radius_tr*2]) rotate([180,90,0]) double_flat_connector();
     translate([sxl_t,sl_f,radius_tr*2]) rotate([180,90,90]) double_flat_connector();
 
+    translate([sxl_t,sl_t,radius_tr*2]) rotate([180,90,0]) double_angled_connector();
 
 }
 
@@ -160,8 +192,11 @@ module frame ()
     mid_connectors();
 }
 
-double_flat_connector();
+//  The top left
+//rotate([0,90,180]) connector_angled_a();
 
-connector();
+
+
+//connector();
 
 frame();
