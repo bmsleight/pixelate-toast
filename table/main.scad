@@ -13,4 +13,6 @@ rotate([0, 0, 180]) translate([140,140,0]) xConnector_wBearing();
 translate([-140,0,0]) treaded_rod();
 
 
-pully_dummy();; 
+pully_dummy();
+
+ 
