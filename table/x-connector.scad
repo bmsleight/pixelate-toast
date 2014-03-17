@@ -21,8 +21,8 @@ module xConnector()
    // Treaded rod to hole bearing
     translate([0,0,connector_height/2]) rotate([0,0,0])  cylinder(h=radius_bolt*6, r=radius_tr*1.1, center=true);
    // Holding down bolts
-#   translate([connector_width/2-radius_bolt*3,0,-connector_height/2]) rotate([0,0,0])  cylinder(h=radius_bolt*10, r=radius_bolt*1.15, center=true);
-#   translate([-connector_width/2+radius_bolt*3,0,-connector_height/2]) rotate([0,0,0])  cylinder(h=radius_bolt*10, r=radius_bolt*1.15, center=true);
+   translate([connector_width/2-radius_bolt*3,0,-connector_height/2]) rotate([0,0,0])  cylinder(h=radius_bolt*10, r=radius_bolt*1.15, center=true);
+   translate([-connector_width/2+radius_bolt*3,0,-connector_height/2]) rotate([0,0,0])  cylinder(h=radius_bolt*10, r=radius_bolt*1.15, center=true);
   }
 
   translate([0,bearing_t+radius_bolt*2,0])  difference()
@@ -36,11 +36,14 @@ module xConnector()
 
 }
 
-module xConnector_wBearing()
+module xConnector_wBearing(top=False)
 {
   rotate([0, 0,0])  translate([0,bearing_t/2,0]) bearing();
   xConnector();
-  rotate([90, 0,0])  translate([0,connector_height/2+bearing_t/2,0]) bearing();
+  if (top==true)
+  {
+    rotate([90, 0,0])  translate([0,connector_height/2+bearing_t/2,0]) bearing();
+  }
 }
 
 
