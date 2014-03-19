@@ -9,3 +9,7 @@ $fn=60;
 
 connector_width=(bearing_os+radius_tr*2+radius_bolt*6)*2;
 connector_height=(bread_h+radius_tr*2+6)*2 ;
+
+
+connector_width_=bearing_os*2.2+radius_tr*4;
+connector_height_=(bread_h+radius_tr*2+6)*2 ;
