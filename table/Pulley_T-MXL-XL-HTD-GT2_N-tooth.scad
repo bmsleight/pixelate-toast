@@ -82,8 +82,8 @@ if ( profile == 2 ) { pulley ( "40 D.P." , 40DP_pulley_dia , 0.457 , 1.226 ); }
 if ( profile == 3 ) { pulley ( "XL" , XL_pulley_dia , 1.27, 3.051 ); }
 if ( profile == 4 ) { pulley ( "H" , H_pulley_dia ,1.905 , 5.359 ); }
 if ( profile == 5 ) { pulley ( "T2.5" , T2_5_pulley_dia , 0.7 , 1.678 ); }
-if ( profile == 6 ) { pulley ( "T5" , T5_pulley_dia , 1.19 , 3.264 ); }
-if ( profile == 7 ) { pulley ( "T10" , T10_pulley_dia , 2.5 , 6.13 ); }
+//if ( profile == 6 ) { pulley ( "T5" , T5_pulley_dia , 1.19 , 3.264 ); }
+//if ( profile == 7 ) { pulley ( "T10" , T10_pulley_dia , 2.5 , 6.13 ); }
 if ( profile == 8 ) { pulley ( "AT5" , AT5_pulley_dia , 1.19 , 4.268 ); }
 if ( profile == 9 ) { pulley ( "HTD 3mm" , HTD_3mm_pulley_dia , 1.289 , 2.27 ); }
 if ( profile == 10 ) { pulley ( "HTD 5mm" , HTD_5mm_pulley_dia , 2.199 , 3.781 ); }

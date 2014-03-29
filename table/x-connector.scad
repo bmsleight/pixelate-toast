@@ -11,6 +11,13 @@ module xConnector()
 
 }
 
+module xConnector_plain()
+{
+  bearingHolder();
+  translate([0,0,-bearing_os*1.1])  connectorFeet();
+}
+
+
 module xConnector_motor()
 {
   bearingHolder();
@@ -19,7 +26,7 @@ module xConnector_motor()
 }
 
 
-module bearingHolder()
+module bearingHolder(top_hole=true, hold_bolt=true)
 {
   difference()
   {
@@ -29,16 +36,21 @@ module bearingHolder()
    // Treaded rod hole
     translate([0,0,0]) rotate([90,0,0])  cylinder(h=bearing_t*4, r=radius_tr*1.15, center=true);
    // Treaded rod to hole bearing
-    translate([0,0,connector_width_/2]) cylinder(h=radius_bolt*7, r=radius_tr*1.1, center=true);
+    if(top_hole==true)
+    {
+      translate([0,0,connector_width_/2]) cylinder(h=radius_bolt*7, r=radius_tr*1.1, center=true);
+    }
   }
 
-
-  translate([0,bearing_t+radius_bolt*2,0])  difference()
+  if(hold_bolt==true)
   {
-  // To hole a bolt to hold the bearing in place
-    cube([connector_width_, radius_bolt*4, bearing_os*2.2+radius_tr*2], center=true);
-    cube([bearing_os*2.2, radius_bolt*8, bearing_os*4], center=true);
-    translate([0,-radius_bolt*0.8,0]) rotate([0,90,0])  cylinder(h=connector_width, r=radius_bolt*1.1, center=true);
+    translate([0,bearing_t+radius_bolt*2,0])  difference()
+    {
+    // To hole a bolt to hold the bearing in place
+      cube([connector_width_, radius_bolt*4, bearing_os*2.2+radius_tr*2], center=true);
+      cube([bearing_os*2.2, radius_bolt*8, bearing_os*4], center=true);
+      translate([0,-radius_bolt*0.8,0]) rotate([0,90,0])  cylinder(h=connector_width, r=radius_bolt*1.1, center=true);
+    }
   }
 
 }
@@ -56,24 +68,21 @@ module connectorFeet()
 }
 
 
-module bearingHolderTop(remove_top=false)
+module bearingHolderTop()
 {
   difference()
   {
     cube([connector_width_+radius_tr*6, bearing_t*2, bearing_t*2.2+radius_tr*4], center=true);
-    if(remove_top==false)
-    {
-      cube([connector_width_+radius_tr*2, bearing_t*6, bearing_t*2.2], center=true);
-    }
-    if(remove_top==true)
-    {
-     translate([0,0,radius_tr*2]) cube([connector_width_+radius_tr*2, bearing_t*6, bearing_t*2.2+radius_tr*4], center=true);
-     translate([0,bearing_t*2.5,-radius_tr*2]) cube([connector_width_*2, bearing_t*4, bearing_t*2.2+radius_tr*4], center=true);
-
-    }
+    cube([connector_width_+radius_tr*2, bearing_t*6, bearing_t*2.2], center=true);
     translate([0,0,-radius_tr*4])  cube([bearing_os*2.1, bearing_t*4, bearing_t*4.4], center=true);
    // Treaded rod to hole bearing
    cylinder(h=radius_bolt*20, r=radius_tr*1.1, center=true);
+  }
+  difference()
+  {
+    translate([0,0,(bearing_t*2.2+radius_tr*4)/2+radius_tr*2/2])  cube([radius_tr*10, bearing_t*2, radius_tr*6], center=true);
+    translate([0,0,(bearing_t*2.2+radius_tr*4)/2+radius_tr*2/2])  cube([radius_tr*6, bearing_t*4, radius_tr*2], center=true);
+   cylinder(h=radius_bolt*40, r=radius_tr*1.1, center=true);
   }
 }
 
@@ -114,8 +123,18 @@ module xConnector_wBearing(top=False)
   }
 }
 
+module xConnector_plain_wBearing()
+{
+  bearingHolder();
+  translate([0,0,-bearing_os*1.1])  connectorFeet();
+  rotate([0, 0,0])  translate([0,bearing_t/2,0]) bearing();
+}
+
+
 
 //!xConnector();
+!xConnector_plain_wBearing();
+
 
 //!xConnector_motor_wBearing();
 //!xConnector_wBearing(top=true);
@@ -124,7 +143,10 @@ module xConnector_wBearing(top=False)
 //!rotate([90, 0,0]) xConnector();
 
 // Print
-!rotate([90, 0,0]) xConnector_motor();
+//!rotate([90, 0,0]) xConnector_plain();
+
+// Print
+//!rotate([90, 0,0]) xConnector_motor();
 
 
 
