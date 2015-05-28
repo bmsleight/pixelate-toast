@@ -32,7 +32,7 @@ motor_centre_height_from_top = height_ridge_from_top + gear_height
 motor_centre_height_from_top = height_ridge_from_top + gear_height - p_thickness*2
 motor_screw_offset_from_centre = 31/2
 motor_height_bottom = motor_centre_height_from_top - motor_height/2.0 +motor_height + p_thickness
-
+motor_length = 48
 
 def add_layers(drawing):
     drawing.add_layer('OUTLINE', color=256)
@@ -46,6 +46,12 @@ def add_layers(drawing):
 def captive_hut(drawing, startx, starty):
     drawing.add(dxf.rectangle((startx, starty) , 15, 3,  layer='CUTSINNEREARLY', color=3))
     drawing.add(dxf.rectangle((startx+(15-3)/2, starty-3), 3, 9,  layer='CUTSINNEREARLY', color=3))
+
+# Yes yes shoudl re-use code... .. .
+def captive_hut_right_angle(drawing, startx, starty):
+    drawing.add(dxf.rectangle((startx-3/2.0, starty) , 3, 15,  layer='CUTSINNEREARLY', color=3))
+    drawing.add(dxf.rectangle((startx-3/2.0-3, starty+(15-3)/2.0), 9, 3,  layer='CUTSINNEREARLY', color=3))
+#    drawing.add(dxf.rectangle((startx-3/2.0-3, starty), 9, 3,  layer='CUTSINNEREARLY', color=3))
 
 
 def slates(drawing, startx, starty, number_of_slates):
@@ -144,7 +150,11 @@ def horizontal_strut(drawing, startx, starty, number_of_struts):
       captive_hut(drawing, startx, starty + (h_strut_length*n) + (h_strut_length)/2-1.5) 
       captive_hut(drawing, startx+h_strut_width-15, starty + (h_strut_length*n) + h_strut_length/2-1.5) 
       #drawing.add(dxf.rectangle((startx, starty + (h_strut_length*n) + h_strut_length/2) , 3, 3,  layer='CUTSINNEREARLY', color=3))
-
+      if n == 0:
+          # Base - 
+          drawing.add(dxf.rectangle((startx+h_strut_width-motor_length-p_thickness*2, starty + (h_strut_length*n) + (h_strut_length)/2.0 -1.5 ), 3, 3,  layer='CUTSINNEREARLY', color=3))
+          drawing.add(dxf.rectangle((startx+h_strut_width-motor_length-p_thickness*2, starty + (h_strut_length*n) + (h_strut_length)/2.0 -1.5 - 12), 3, 9,  layer='CUTSINNEREARLY', color=3))
+          drawing.add(dxf.rectangle((startx+h_strut_width-motor_length-p_thickness*2, starty + (h_strut_length*n) + (h_strut_length)/2.0 +1.5 + 3), 3, 9,  layer='CUTSINNEREARLY', color=3))
 
   drawing.add(dxf.line( (startx, starty + (h_strut_length*number_of_struts) ), 
                         (startx+h_strut_width, starty + (h_strut_length*number_of_struts) ),
@@ -180,10 +190,137 @@ def side_r(drawing, startx, starty, motor_hole = False):
     if motor_hole:
         # Motor position
         side_holes_for_struts(drawing, startx+side_position_fraction_x*5, starty+side_height-motor_height_bottom)
+        side_holes_for_struts(drawing, startx+side_position_fraction_x*5, starty+side_height-motor_height_bottom+motor_height+p_thickness)
         motor_mount_holes(drawing, startx+side_position_fraction_x*5+h_strut_length/2.0, starty+side_height-motor_centre_height_from_top)
     side_holes_for_struts(drawing, startx+side_position_fraction_x*3, starty+side_position_fraction_y*4)
     side_holes_for_ridge(drawing, startx, starty+side_height-height_ridge_from_top)
     y_increment = side_height
+    return (x_increment, y_increment)
+
+def motor_front_face(drawing, startx, starty):
+    top_struct_at_y    = side_height-motor_height_bottom+motor_height+p_thickness*2
+    bottom_struct_at_y = side_position_fraction_y
+    mff_height = top_struct_at_y - bottom_struct_at_y
+    #drawing.add(dxf.rectangle((startx, starty) , motor_height, mff_height,  layer='CUTSOUTER', color=5)) #square motor width=height
+    drawing.add(dxf.line( (startx, starty+p_thickness ), 
+                          (startx+(motor_height/2.0)-(9*1.5), starty+p_thickness),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)-(9*1.5), starty+p_thickness ), 
+                          (startx+(motor_height/2.0)-(9*1.5), starty),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height), starty+p_thickness ), 
+                          (startx+(motor_height)-(motor_height/2.0)+(9*1.5), starty+p_thickness),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height)-(motor_height/2.0)+(9*1.5), starty+p_thickness ), 
+                          (startx+(motor_height)-(motor_height/2.0)+(9*1.5), starty),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)-(9*0.5), starty+p_thickness ), 
+                          (startx+(motor_height/2.0)+(9*0.5), starty+p_thickness),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)+(9*0.5), starty+p_thickness ), 
+                          (startx+(motor_height/2.0)+(9*0.5), starty),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)-(9*0.5), starty+p_thickness ), 
+                          (startx+(motor_height/2.0)-(9*0.5), starty),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx, starty-p_thickness+mff_height ), 
+                          (startx+(motor_height/2.0)-(9*1.5), starty-p_thickness+mff_height),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)-(9*1.5), starty-p_thickness+mff_height ), 
+                          (startx+(motor_height/2.0)-(9*1.5), starty+mff_height),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height), starty-p_thickness+mff_height ), 
+                          (startx+(motor_height)-(motor_height/2.0)+(9*1.5), starty-p_thickness+mff_height),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height)-(motor_height/2.0)+(9*1.5), starty-p_thickness+mff_height ), 
+                          (startx+(motor_height)-(motor_height/2.0)+(9*1.5), starty+mff_height),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)-(9*0.5), starty-p_thickness+mff_height), 
+                          (startx+(motor_height/2.0)+(9*0.5), starty-p_thickness+mff_height),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)+(9*0.5), starty-p_thickness+mff_height), 
+                          (startx+(motor_height/2.0)+(9*0.5), starty+mff_height),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+(motor_height/2.0)-(9*0.5), starty-p_thickness+mff_height), 
+                          (startx+(motor_height/2.0)-(9*0.5), starty+mff_height),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    # top line
+    drawing.add(dxf.line( (startx, starty+mff_height), 
+                          (startx+motor_height, starty+mff_height),
+                          layer='CUTSOUTER', color=5) 
+                 )
+    # sides
+    drawing.add(dxf.line( (startx, starty), 
+                          (startx, starty+mff_height),
+                          layer='CUTSOUTER', color=5) 
+                 )
+    drawing.add(dxf.line( (startx+motor_height, starty), 
+                          (startx+motor_height, starty+mff_height),
+                          layer='CUTSOUTER', color=5) 
+                 )
+    motor_mount_holes(drawing, startx+motor_height/2.0, starty+mff_height-motor_height/2.0-p_thickness)
+    captive_hut_right_angle(drawing, startx+motor_height/2.0, starty)
+    captive_hut_right_angle(drawing, startx+motor_height/2.0, starty+mff_height-15)
+    y_increment = mff_height
+    x_increment = motor_height
+    return (x_increment, y_increment)
+
+def motor_front_top_face(drawing, startx, starty):
+#    drawing.add(dxf.rectangle((startx, starty) , motor_height, motor_length-p_thickness*2,  layer='CUTSOUTER', color=5))
+    drawing.add(dxf.line( (startx, starty + motor_length+p_thickness*2), 
+                          (startx+motor_height, starty + motor_length+p_thickness*2),
+                          layer='CUTSOUTER', color=5) 
+                 )
+    drawing.add(dxf.line( (startx+motor_height, starty ), 
+                          (startx+motor_height, starty + motor_length+p_thickness*2),
+                          layer='CUTSOUTER', color=5) 
+                 )
+    drawing.add(dxf.rectangle((startx+motor_height/2.0-1.5, starty) , 3, 3,  layer='CUTSINNEREARLY', color=3))
+    drawing.add(dxf.rectangle((startx+motor_height/2.0-1.5-12, starty) , 9, 3,  layer='CUTSINNEREARLY', color=3))
+    drawing.add(dxf.rectangle((startx+motor_height/2.0+1.5+3, starty) , 9, 3,  layer='CUTSINNEREARLY', color=3))
+    captive_hut_right_angle(drawing, startx+motor_height/2.0, starty + motor_length+p_thickness*2-15)
+    drawing.add(dxf.line( (startx+motor_height/2.0-h_strut_length/(3*2), starty + motor_length+p_thickness ), 
+                          (startx+motor_height/2.0+h_strut_length/(3*2), starty + motor_length+p_thickness ),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+motor_height/2.0-h_strut_length/(3*2), starty + motor_length+p_thickness ), 
+                          (startx+motor_height/2.0-h_strut_length/(3*2), starty + motor_length+p_thickness*2 ),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+motor_height/2.0+h_strut_length/(3*2), starty + motor_length+p_thickness ), 
+                          (startx+motor_height/2.0+h_strut_length/(3*2), starty + motor_length+p_thickness*2 ),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+motor_height, starty + motor_length+p_thickness), 
+                          (startx+motor_height/2.0+h_strut_length/(3*2)+h_strut_length/3, starty + motor_length+p_thickness),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+motor_height/2.0+h_strut_length/(3*2)+h_strut_length/3, starty + motor_length+p_thickness), 
+                          (startx+motor_height/2.0+h_strut_length/(3*2)+h_strut_length/3, starty + motor_length+p_thickness*2),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx, starty + motor_length+p_thickness), 
+                          (startx+motor_height/2.0-h_strut_length/(3*2)-h_strut_length/3, starty + motor_length+p_thickness),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
+    drawing.add(dxf.line( (startx+motor_height/2.0-h_strut_length/(3*2)-h_strut_length/3, starty + motor_length+p_thickness), 
+                          (startx+motor_height/2.0-h_strut_length/(3*2)-h_strut_length/3, starty + motor_length+p_thickness*2),
+                          layer='CUTSINNEREARLY', color=3) 
+                 )
     return (x_increment, y_increment)
 
 def ridge(drawing, startx, starty):
@@ -218,6 +355,11 @@ if __name__ == '__main__':
     startx = startx + x_increment
     starty = starty + y_increment
     (x_increment, y_increment) = ridge(drawing, startx, starty)  
+    startx = startx + x_increment
+    starty = starty + y_increment
+    (x_increment, y_increment) = motor_front_face(drawing, startx, starty)
+    (x_increment, y_increment) = motor_front_top_face(drawing, startx+x_increment, starty)
+
     drawing.save()
     print("drawing '%s' created.\n" % name)
 
