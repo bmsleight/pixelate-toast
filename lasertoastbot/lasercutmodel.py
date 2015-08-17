@@ -99,10 +99,13 @@ class model:
                 z = 0
                 x,y = laser_cut_out.x_y_flat_place
                 rotates_text = rotates[1]
+            output += "// " + laser_cut_out.name + " \n"
             output += "union() { \n"
             output += "\ttranslate([" + str(x) + "," + str(y) + "," + str(z) + "]) { \n"
             output += "\t\t" + rotates_text + "{ \n"        
-            output += "\t\t\tlinear_extrude(height = " + str(self.thickness) + " , center = false) \n"
+            output += "\t\t\tdifference() { \n"        
+            output += "\t\t\t\tunion() { \n"        
+            output += "\t\t\t\t\tlinear_extrude(height = " + str(self.thickness) + " , center = false) \n"
             path = str(range(0, len(laser_cut_out.points)))
             points = self.polygon_points_format(laser_cut_out.points)
             path_num = len(laser_cut_out.points)
@@ -113,8 +116,8 @@ class model:
                     path_num += len(cutout_points)
             if laser_cut_out.tabs:
                 for tab in laser_cut_out.tabs:
+                    t = self.thickness
                     if tab.tab_type == 1:
-                        t = self.thickness
                         if tab.tab_orientation == "up":
                             start_x = tab.x - self.thickness/2.0
                             start_y = tab.y
@@ -164,16 +167,61 @@ class model:
                         points += self.polygon_points_format(tab_points)
                         path += "," + str(range(path_num, path_num+len(tab_points)))
                         path_num += len(tab_points)
+                    if tab.tab_type == 2:
+                        tab_points = [(tab.x-t/2.0,tab.y-t/2.0), (tab.x+t/2.0,tab.y-t/2.0), (tab.x+t/2.0,tab.y+t/2.0),
+                                      (tab.x-t/2.0,tab.y+t/2.0), (tab.x-t/2.0,tab.y-t/2.0)]
+                        points += self.polygon_points_format(tab_points)
+                        path += "," + str(range(path_num, path_num+len(tab_points)))
+                        path_num += len(tab_points)
+                        if tab.tab_orientation == "down" or tab.tab_orientation == "up":
+                            tab_points = [(tab.x-t/2.0,tab.y+t*1.5), (tab.x-t/2.0+t,tab.y+t*1.5), (tab.x-t/2.0+t,tab.y+t*4.5),
+                                          (tab.x-t/2.0,tab.y+t*4.5), (tab.x-t/2.0,tab.y+t*1.5)]
+                        else:
+                            tab_points = [(tab.x+t*1.5,tab.y-t/2.0), (tab.x+t*1.5,tab.y-t/2.0+t), (tab.x+t*4.5,tab.y-t/2.0+t),
+                                          (tab.x+t*4.5,tab.y-t/2.0), (tab.x+t*1.5,tab.y-t/2.0)]
+                        points += self.polygon_points_format(tab_points)
+                        path += "," + str(range(path_num, path_num+len(tab_points)))
+                        path_num += len(tab_points)
+                        if tab.tab_orientation == "down" or tab.tab_orientation == "up":
+                            tab_points = [(tab.x-t/2.0,tab.y+t*1.5-t*6), (tab.x-t/2.0+t,tab.y+t*1.5-t*6), (tab.x-t/2.0+t,tab.y+t*4.5-t*6),
+                                          (tab.x-t/2.0,tab.y+t*4.5-t*6), (tab.x-t/2.0,tab.y+t*1.5-t*6)]
+                        else:
+                            tab_points = [(tab.x+t*1.5-t*6,tab.y-t/2.0), (tab.x+t*1.5-t*6,tab.y-t/2.0+t), (tab.x+t*4.5-t*6,tab.y-t/2.0+t),
+                                          (tab.x+t*4.5-t*6,tab.y-t/2.0), (tab.x+t*1.5-t*6,tab.y-t/2.0)]
+                        points += self.polygon_points_format(tab_points)
+                        path += "," + str(range(path_num, path_num+len(tab_points)))
+                        path_num += len(tab_points)
+                    if tab.tab_type == 3 or tab.tab_type == 4:
+                        start_x = tab.x
+                        start_y = tab.y
+                        if tab.tab_orientation == "down":
+                            start_y = start_y - t
+                        if tab.tab_orientation == "left":
+                            start_x = start_x - t/2.0
+                            start_y = start_y - t/2.0
+                        if tab.tab_orientation == "right":
+                            start_x = start_x + t/2.0
+                            start_y = start_y - t/2.0
+                        if tab.tab_orientation == "mid":
+                            start_y = start_y - t/2.0
+
+                        tab_points = [(start_x-t/2.0, start_y), (start_x-t/2.0, start_y+t), (start_x-t/2.0+t, start_y+t),
+                                      (start_x-t/2.0+t, start_y), (start_x-t/2.0, start_y)]
+                        points += self.polygon_points_format(tab_points)
+                        path += "," + str(range(path_num, path_num+len(tab_points)))
+                        path_num += len(tab_points)
+                        
 
 
 
-            output += "\t\t\t\tpolygon(points=[" + points + "], paths=[" + path + "]); \n"
-            # polygon(points=[[0,0],[100,0],[0,100],[10,10],[80,10],[10,80]], paths=[[0,1,2],[3,4,5]]);
+            output += "\t\t\t\t\tpolygon(points=[" + points + "], paths=[" + path + "]); \n"
+            output += "\t\t\t\t} // End union \n"
             t = str(self.thickness)
-            output += '\t\t\t\tcolor([1,0,0]) translate(['+t+','+t+','+t+']) text("' + laser_cut_out.name + '", size='+t+'); \n'
+            output += '\t\t\t\ttranslate(['+t+','+t+',-'+t+'/2]) linear_extrude(height = ' + t + '*2)  text("' + laser_cut_out.name + '", size='+t+'); \n'
+            output += "\t\t\t} // End difference \n"
             output += "\t\t} // End rotate \n"
             output += "\t} // End translate \n"
-            output += "} // End union \n"
+            output += "} // End union \n\n"
         if not three_d:
             output += "} // end projection \n\n"
         
