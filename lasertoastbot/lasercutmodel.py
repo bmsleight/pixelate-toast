@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys
+import os, sys, copy
 
 from solid import *
 from solid.utils import *
@@ -33,11 +33,18 @@ class laserCutOut:
         self.x_y_z_position = x_y_z_position
         self.x_y_flat_place = x_y_flat_place
 
-
 class model:
-    def __init__(self, thickness):
+    def __init__(self, thickness, kerf = 0.2):
         self.thickness = thickness
         self.laser_cut_outs = []
+        self.kerf = kerf
+    def find_cut_out(self, name_of_cut_out):
+        foundIndex = -1
+        for i in range(0, len(self.laser_cut_outs)):
+            if name_of_cut_out == self.laser_cut_outs[i].name:
+                foundIndex = i
+        return foundIndex
+
 
     def add_laser_cut_out(self, name, orientation=1, points=[], list_cutout_points=[], x_y_z_position=(0,0,0), x_y_flat_place=(0,0)):
         # NB tabs=[],= not used at this stage
@@ -52,11 +59,32 @@ class model:
         self.add_laser_cut_out(name=name, orientation=orientation, points=points, 
                                     x_y_z_position=x_y_z_position, x_y_flat_place=x_y_flat_place)
 
+
+    def copy_laser_cut_out(self, old_name, new_name):
+        foundIndex = self.find_cut_out(old_name)
+        if foundIndex !=-1:
+            cpoints = copy.deepcopy(self.laser_cut_outs[foundIndex].points)
+            clist_cutout_points = copy.deepcopy(self.laser_cut_outs[foundIndex].list_cutout_points)
+            x,y,z = copy.deepcopy(self.laser_cut_outs[foundIndex].x_y_z_position)
+            fp_x, fp_y = self.laser_cut_outs[foundIndex].x_y_flat_place
+
+            self.add_laser_cut_out(new_name, 
+                                       self.laser_cut_outs[foundIndex].orientation,
+                                       cpoints,
+                                       clist_cutout_points,
+                                       (x,y,z),
+                                       (fp_x, fp_y) )
+            for tab in self.laser_cut_outs[foundIndex].tabs:
+                self.add_tab(new_name, tab.tab_type, tab.x, tab.y, tab.tab_orientation)
+
+    def update_x_y_z(self, name_of_cut_out, x_y_z_position):
+        foundIndex = self.find_cut_out(name_of_cut_out)
+        if foundIndex !=-1:
+            self.laser_cut_outs[foundIndex].x_y_z_position = x_y_z_position
+
+
     def add_tab(self, name_of_cut_out, tab_type, x, y, tab_orientation="up"):
-        foundIndex = -1
-        for i in range(0, len(self.laser_cut_outs)):
-            if name_of_cut_out == self.laser_cut_outs[i].name:
-                foundIndex = i
+        foundIndex = self.find_cut_out(name_of_cut_out)
         if foundIndex !=-1:
             new_tab = tab(tab_type=tab_type, x=x, y=y, tab_orientation=tab_orientation)
             self.laser_cut_outs[foundIndex].tabs.append(new_tab)
@@ -64,10 +92,7 @@ class model:
             print("No cutout for tab - raise exception")
 
     def add_inner_cutout(self, name_of_cut_out, inner_points):
-        foundIndex = -1
-        for i in range(0, len(self.laser_cut_outs)):
-            if name_of_cut_out == self.laser_cut_outs[i].name:
-                foundIndex = i
+        foundIndex = self.find_cut_out(name_of_cut_out)
         if foundIndex !=-1:
             current_cutout_points = self.laser_cut_outs[foundIndex].list_cutout_points
             self.laser_cut_outs[foundIndex].list_cutout_points.append(inner_points)
@@ -105,7 +130,11 @@ class model:
             output += "\t\t" + rotates_text + "{ \n"        
             output += "\t\t\tdifference() { \n"        
             output += "\t\t\t\tunion() { \n"        
-            output += "\t\t\t\t\tlinear_extrude(height = " + str(self.thickness) + " , center = false) \n"
+            output += "\t\t\t\t\tlinear_extrude(height = " + str(self.thickness) + " , center = false) "
+            if three_d:
+                output += "offset(delta = -" + str(self.kerf/2) + ") \n"
+            else:
+                output += "\n"
             path = str(range(0, len(laser_cut_out.points)))
             points = self.polygon_points_format(laser_cut_out.points)
             path_num = len(laser_cut_out.points)
