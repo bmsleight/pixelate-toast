@@ -7,13 +7,14 @@ from solid import *
 from solid.utils import *
 
 class tab:
-    def __init__(self, tab_type, x, y, tab_orientation="up"):
+    def __init__(self, tab_type, x=0, y=0, tab_orientation="up", number=1):
         # 1 is a female captive nut
         # 2 is the male captive nut  
         self.tab_type = tab_type
         self.x = x
         self.y = y
         self.tab_orientation = tab_orientation
+        self.number = number
 
 
 class laserCutOut:
@@ -107,10 +108,10 @@ class model:
             self.laser_cut_outs[foundIndex].x_y_z_position = x_y_z_position
 
 
-    def add_tab(self, name_of_cut_out, tab_type, x, y, tab_orientation="up"):
+    def add_tab(self, name_of_cut_out, tab_type, x=0, y=0, tab_orientation="up", number=1):
         foundIndex = self.find_cut_out(name_of_cut_out)
         if foundIndex !=-1:
-            new_tab = tab(tab_type=tab_type, x=x, y=y, tab_orientation=tab_orientation)
+            new_tab = tab(tab_type=tab_type, x=x, y=y, tab_orientation=tab_orientation, number=number)
             self.laser_cut_outs[foundIndex].tabs.append(new_tab)
         else:
             print("No cutout for tab - raise exception")
@@ -137,8 +138,6 @@ class model:
         output = "// Made with lasercutmodel.py \n\n\n"
         if not three_d:
             output += "projection(cut = false)\n union() {\n"
-        
-
         for laser_cut_out in self.laser_cut_outs:
             rotates = {1 : "rotate([0,0,0]) ", 2 : "rotate([0,-90,0]) ",  3 : "rotate([90,0,0]) "}
             if three_d:
@@ -263,8 +262,59 @@ class model:
                         points += self.polygon_points_format(tab_points)
                         path += "," + str(range(path_num, path_num+len(tab_points)))
                         path_num += len(tab_points)
-                        
-
+                    if tab.tab_type == 5 or tab.tab_type == 6:
+                        # five starts down, six starts in up position
+                        max_x = max(x for x, y in laser_cut_out.points)
+                        min_x = min(x for x, y in laser_cut_out.points)
+                        max_y = max(y for x, y in laser_cut_out.points)
+                        min_y = min(y for x, y in laser_cut_out.points)
+                        start_x, start_y = (0,0)
+                        if tab.tab_orientation == "up":
+                            start_x = min_x
+                            start_y = max_y
+                            end_x = max_x
+                            end_y = max_y
+                            inc_y = t
+                            inc_x = (end_x - start_x)/float(tab.number*2)
+                        if tab.tab_orientation == "down":
+                            start_x = min_x
+                            start_y = min_y
+                            end_x = max_x
+                            end_y = min_y
+                            inc_y = t
+                            inc_x = (end_x - start_x)/float(tab.number*2)
+                        if tab.tab_orientation == "left":
+                            start_x = min_x-t
+                            start_y = min_y
+                            end_x = min_x-t
+                            end_y = max_y
+                            inc_x = t
+                            inc_y = (end_y - start_y)/float(tab.number*2)
+                        if tab.tab_orientation == "right":
+                            start_x = max_x
+                            start_y = min_y
+                            end_x = max_x-t
+                            end_y = max_y
+                            inc_x = t
+                            inc_y = (end_y - start_y)/float(tab.number*2)
+                        tab_points = []
+                        for notches in range(0, tab.number):
+#                            if tab.tab_type == 5:
+                            if (tab.tab_type == 5 and tab.tab_orientation == "up") or (tab.tab_type == 6 and tab.tab_orientation == "down") or (tab.tab_type == 5 and tab.tab_orientation == "left") or (tab.tab_type == 5 and tab.tab_orientation == "right"):
+                                tab_points = [(start_x+inc_x, start_y), (start_x+inc_x*2, start_y), (start_x+inc_x*2, start_y+inc_y),
+                                              (start_x+inc_x, start_y+inc_y), (start_x+inc_x, start_y)]
+#                            if tab.tab_type == 6:
+                            if (tab.tab_type == 6 and tab.tab_orientation == "up") or (tab.tab_type == 5 and tab.tab_orientation == "down") or (tab.tab_type == 6 and tab.tab_orientation == "left") or (tab.tab_type == 6 and tab.tab_orientation == "right"):
+                                tab_points = [(start_x, start_y), (start_x+inc_x, start_y), (start_x+inc_x, start_y+inc_y),
+                                              (start_x, start_y+inc_y), (start_x, start_y)]
+                            if tab.tab_orientation == "up" or tab.tab_orientation == "down":
+                                start_x += inc_x*2
+                            if tab.tab_orientation == "left" or tab.tab_orientation == "right":
+                                start_y += inc_y*2
+                            points += self.polygon_points_format(tab_points)
+                            path += "," + str(range(path_num, path_num+len(tab_points)))
+                            path_num += len(tab_points)
+                            tab_points = []
 
 
             output += "\t\t\t\t\tpolygon(points=[" + points + "], paths=[" + path + "]); \n"
