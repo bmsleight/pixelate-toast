@@ -38,6 +38,7 @@ class model:
         self.thickness = thickness
         self.laser_cut_outs = []
         self.kerf = kerf
+        self.extra_scad = ""
     def find_cut_out(self, name_of_cut_out):
         foundIndex = -1
         for i in range(0, len(self.laser_cut_outs)):
@@ -45,6 +46,32 @@ class model:
                 foundIndex = i
         return foundIndex
 
+    def rough_layout_2d(self):
+        # max(y for x, y in l)
+        max_sizes = []
+        for laser_cut_out in self.laser_cut_outs:
+            # Find wide/heighest point then add 4*thickness as boarder
+            max_x = max(x for x, y in laser_cut_out.points) + 3*self.thickness
+            max_y = max(y for x, y in laser_cut_out.points) + 3*self.thickness
+            max_sizes.append((max_x, max_y))
+        x_flat_place, y_flat_place = (0,0)
+        y_inc_max = 0
+        max_width = max(x for x, y in max_sizes)
+        for i in range(0, len(self.laser_cut_outs)):
+            self.laser_cut_outs[i].x_y_flat_place = (x_flat_place, y_flat_place)
+            x_inc, y_inc = max_sizes[i]
+            if y_inc > y_inc_max:
+                y_inc_max = y_inc
+            x_flat_place += x_inc
+            if i < len(self.laser_cut_outs) - 1:
+                # not at last peice
+                next_x, next_y = max_sizes[i+1]
+                if (x_flat_place + next_x) > max_width:
+                    x_flat_place = 0 
+                    y_flat_place += y_inc_max
+                    y_inc_max = 0
+                else:
+                    pass
 
     def add_laser_cut_out(self, name, orientation=1, points=[], list_cutout_points=[], x_y_z_position=(0,0,0), x_y_flat_place=(0,0)):
         # NB tabs=[],= not used at this stage
@@ -59,23 +86,20 @@ class model:
         self.add_laser_cut_out(name=name, orientation=orientation, points=points, 
                                     x_y_z_position=x_y_z_position, x_y_flat_place=x_y_flat_place)
 
-
     def copy_laser_cut_out(self, old_name, new_name):
         foundIndex = self.find_cut_out(old_name)
         if foundIndex !=-1:
-            cpoints = copy.deepcopy(self.laser_cut_outs[foundIndex].points)
-            clist_cutout_points = copy.deepcopy(self.laser_cut_outs[foundIndex].list_cutout_points)
-            x,y,z = copy.deepcopy(self.laser_cut_outs[foundIndex].x_y_z_position)
-            fp_x, fp_y = self.laser_cut_outs[foundIndex].x_y_flat_place
+            c = copy.deepcopy(self.laser_cut_outs[foundIndex])
+            c.name = new_name
+            self.laser_cut_outs.append(c)
 
-            self.add_laser_cut_out(new_name, 
-                                       self.laser_cut_outs[foundIndex].orientation,
-                                       cpoints,
-                                       clist_cutout_points,
-                                       (x,y,z),
-                                       (fp_x, fp_y) )
-            for tab in self.laser_cut_outs[foundIndex].tabs:
-                self.add_tab(new_name, tab.tab_type, tab.x, tab.y, tab.tab_orientation)
+    def copy_laser_cut_out(self, old_name, new_name, x_y_z_position):
+        foundIndex = self.find_cut_out(old_name)
+        if foundIndex !=-1:
+            c = copy.deepcopy(self.laser_cut_outs[foundIndex])
+            c.name = new_name
+            c.x_y_z_position = x_y_z_position
+            self.laser_cut_outs.append(c)
 
     def update_x_y_z(self, name_of_cut_out, x_y_z_position):
         foundIndex = self.find_cut_out(name_of_cut_out)
@@ -109,7 +133,7 @@ class model:
             x, y = point
             rpoints += "[" + str(x) + "," + str(y) + "],"
         return rpoints
-    def write_scad_file(self, filename, three_d=True):
+    def write_scad_file(self, filename, three_d=True, text=True):
         output = "// Made with lasercutmodel.py \n\n\n"
         if not three_d:
             output += "projection(cut = false)\n union() {\n"
@@ -245,14 +269,17 @@ class model:
 
             output += "\t\t\t\t\tpolygon(points=[" + points + "], paths=[" + path + "]); \n"
             output += "\t\t\t\t} // End union \n"
-            t = str(self.thickness)
-            output += '\t\t\t\ttranslate(['+t+','+t+',-'+t+'/2]) linear_extrude(height = ' + t + '*2)  text("' + laser_cut_out.name + '", size='+t+'); \n'
+            if text:
+                t = str(self.thickness)
+                output += '\t\t\t\ttranslate(['+t+','+t+',-'+t+'/2]) linear_extrude(height = ' + t + '*2)  text("' + laser_cut_out.name + '", size='+t+'); \n'
             output += "\t\t\t} // End difference \n"
             output += "\t\t} // End rotate \n"
             output += "\t} // End translate \n"
             output += "} // End union \n\n"
         if not three_d:
             output += "} // end projection \n\n"
+        else:
+            output += "// Extra scad \n" + self.extra_scad + "\n\n"
         
         # Now write
         f = open(filename, "w")
