@@ -1,10 +1,13 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import division
+
 import os, sys, copy
 
 from solid import *
 from solid.utils import *
+
 
 class tab:
     def __init__(self, tab_type, x=0, y=0, tab_orientation="up", number=1):
@@ -278,35 +281,44 @@ class model:
                             inc_x = (end_x - start_x)/float(tab.number*2)
                         if tab.tab_orientation == "down":
                             start_x = min_x
-                            start_y = min_y
+                            start_y = min_y-t
                             end_x = max_x
                             end_y = min_y
                             inc_y = t
                             inc_x = (end_x - start_x)/float(tab.number*2)
                         if tab.tab_orientation == "left":
-                            start_x = min_x-t
+                            start_x = min_x-2*t
                             start_y = min_y
-                            end_x = min_x-t
+                            end_x = min_x
                             end_y = max_y
-                            inc_x = t
                             inc_y = (end_y - start_y)/float(tab.number*2)
+                            inc_x = t
+                            print min_x, tab.tab_orientation
                         if tab.tab_orientation == "right":
-                            start_x = max_x
+                            start_x = max_x-t
                             start_y = min_y
-                            end_x = max_x-t
+                            end_x = max_x
                             end_y = max_y
-                            inc_x = t
                             inc_y = (end_y - start_y)/float(tab.number*2)
+                            inc_x = t
                         tab_points = []
                         for notches in range(0, tab.number):
-#                            if tab.tab_type == 5:
-                            if (tab.tab_type == 5 and tab.tab_orientation == "up") or (tab.tab_type == 6 and tab.tab_orientation == "down") or (tab.tab_type == 5 and tab.tab_orientation == "left") or (tab.tab_type == 5 and tab.tab_orientation == "right"):
-                                tab_points = [(start_x+inc_x, start_y), (start_x+inc_x*2, start_y), (start_x+inc_x*2, start_y+inc_y),
-                                              (start_x+inc_x, start_y+inc_y), (start_x+inc_x, start_y)]
-#                            if tab.tab_type == 6:
-                            if (tab.tab_type == 6 and tab.tab_orientation == "up") or (tab.tab_type == 5 and tab.tab_orientation == "down") or (tab.tab_type == 6 and tab.tab_orientation == "left") or (tab.tab_type == 6 and tab.tab_orientation == "right"):
-                                tab_points = [(start_x, start_y), (start_x+inc_x, start_y), (start_x+inc_x, start_y+inc_y),
-                                              (start_x, start_y+inc_y), (start_x, start_y)]
+                            if (tab.tab_orientation == "up") or (tab.tab_orientation == "down"):
+                                if tab.tab_type == 5:
+                                    tab_points = [(start_x+inc_x, start_y), (start_x+inc_x*2, start_y), (start_x+inc_x*2, start_y+inc_y),
+                                                  (start_x+inc_x, start_y+inc_y), (start_x+inc_x, start_y)]
+                                if tab.tab_type == 6:
+                                    tab_points = [(start_x, start_y), (start_x+inc_x, start_y), (start_x+inc_x, start_y+inc_y),
+                                                  (start_x, start_y+inc_y), (start_x, start_y)]
+                            if (tab.tab_orientation == "left") or (tab.tab_orientation == "right"):
+                                if tab.tab_type == 5:
+                                    tab_points = [(start_x+inc_x, start_y), (start_x+inc_x*2, start_y), (start_x+inc_x*2, start_y+inc_y),
+                                                  (start_x+inc_x, start_y+inc_y), (start_x+inc_x, start_y)]
+                                if tab.tab_type == 9:
+                                    tab_points = [(start_x, start_y), (start_x+inc_x, start_y), (start_x+inc_x, start_y+inc_y),
+                                                  (start_x, start_y+inc_y), (start_x, start_y)]
+
+
                             if tab.tab_orientation == "up" or tab.tab_orientation == "down":
                                 start_x += inc_x*2
                             if tab.tab_orientation == "left" or tab.tab_orientation == "right":
@@ -314,7 +326,7 @@ class model:
                             points += self.polygon_points_format(tab_points)
                             path += "," + str(range(path_num, path_num+len(tab_points)))
                             path_num += len(tab_points)
-                            tab_points = []
+#                            tab_points = []
 
 
             output += "\t\t\t\t\tpolygon(points=[" + points + "], paths=[" + path + "]); \n"
