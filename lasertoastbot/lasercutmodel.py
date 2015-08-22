@@ -36,6 +36,7 @@ class laserCutOut:
         self.tabs = []
         self.x_y_z_position = x_y_z_position
         self.x_y_flat_place = x_y_flat_place
+        self.circle_cut_outs = []
 
 class model:
     def __init__(self, thickness, kerf = 0.2):
@@ -91,6 +92,7 @@ class model:
         self.add_laser_cut_out(name=name, orientation=orientation, points=points, 
                                     x_y_z_position=x_y_z_position, x_y_flat_place=x_y_flat_place)
 
+
     def copy_laser_cut_out(self, old_name, new_name):
         foundIndex = self.find_cut_out(old_name)
         if foundIndex !=-1:
@@ -111,6 +113,10 @@ class model:
         if foundIndex !=-1:
             self.laser_cut_outs[foundIndex].x_y_z_position = x_y_z_position
 
+    def add_circle_cut_out(self, name_of_cut_out, x=0, y=0, r=1):
+        foundIndex = self.find_cut_out(name_of_cut_out)
+        if foundIndex !=-1:
+            self.laser_cut_outs[foundIndex].circle_cut_outs.append((x,y,r))
 
     def add_tab(self, name_of_cut_out, tab_type, x=0, y=0, tab_orientation="up", number=1):
         foundIndex = self.find_cut_out(name_of_cut_out)
@@ -399,6 +405,10 @@ class model:
             if text:
                 t = str(self.thickness)
                 output += '\t\t\t\ttranslate(['+t+','+t+',-'+t+'/2]) linear_extrude(height = ' + t + '*2)  text("' + laser_cut_out.name + '", size='+t+'*'+str(text_scale)+'); \n'
+            for circle_cut_out in laser_cut_out.circle_cut_outs:
+                x, y, r = circle_cut_out
+                t = str(self.thickness)
+                output += '\t\t\t\ttranslate([' + str(x) + ',' + str(y) + ', -' + t + '])  linear_extrude(height = ' + t + '*3 , center = false)   circle(r=' + str(r) +');'
             output += "\t\t\t} // End difference \n"
             output += "\t\t} // End rotate \n"
             output += "\t} // End translate \n"

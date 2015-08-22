@@ -13,7 +13,7 @@ laserbot.add_inner_cutout_square("front stand",  width=thickness, height=10, off
 # copy to back
 laserbot.copy_laser_cut_out("front stand", "front stand 2", (0, 125-thickness,0)) 
 
-hp_1 = 36
+hp_1 = 33
 
 laserbot.add_square_cut_out("front stand side", width=hp_1, height=125, orientation=2, x_y_z_position=(86-thickness,0,0))
 # Slots
@@ -22,17 +22,41 @@ laserbot.add_inner_cutout_square("front stand side",  width=10, height=thickness
 # copy to back
 
 laserbot.add_square_cut_out("bearing base", width=86, height=115, orientation=1, x_y_z_position=(0,0,hp_1))
-laserbot.add_tab("bearing base", tab_type=2, x=thickness*1, y=hp_1, tab_orientation="up")
-laserbot.add_tab("front stand side", tab_type=1, x=hp_1, y=hp_1, tab_orientation="right")
+laserbot.add_tab("bearing base", tab_type=2, x=thickness*1, y=40, tab_orientation="up")
+laserbot.add_tab("front stand side", tab_type=1, x=hp_1, y=40, tab_orientation="right")
 laserbot.add_tab("bearing base", tab_type=2, x=thickness*1, y=115-25, tab_orientation="up")
 laserbot.add_tab("front stand side", tab_type=1, x=hp_1, y=115-25, tab_orientation="right")
 laserbot.add_tab("bearing base", tab_type=2, x=86-thickness*2, y=hp_1, tab_orientation="up")
 laserbot.add_tab("bearing base", tab_type=2, x=86-thickness*2, y=115-25, tab_orientation="up")
 laserbot.copy_laser_cut_out("front stand side", "front stand side 2", (2*thickness,0,0))
 
+#Motor Mounting
+laserbot.add_circle_cut_out("bearing base", x=42, y=94, r=14)
+laserbot.add_circle_cut_out("bearing base", x=42-33/2, y=94-33/2, r=3/2)
+laserbot.add_circle_cut_out("bearing base", x=42+33/2, y=94-33/2, r=3/2)
+laserbot.add_circle_cut_out("bearing base", x=42-33/2, y=94+33/2, r=3/2)
+laserbot.add_circle_cut_out("bearing base", x=42+33/2, y=94+33/2, r=3/2)
+
+#Bearing holes
+bearing_offset_x = 47
+bearing_offset_y = 40
+laserbot.add_inner_cutout_square("bearing base", width=19, height=6, offset_x=8, offset_y=17)
+laserbot.add_inner_cutout_square("bearing base", width=19, height=6, offset_x=8+bearing_offset_x, offset_y=17)
+laserbot.add_inner_cutout_square("bearing base", width=19, height=6, offset_x=8, offset_y=17+bearing_offset_y)
+laserbot.add_inner_cutout_square("bearing base", width=19, height=6, offset_x=8+bearing_offset_x, offset_y=17+bearing_offset_y)
+#Bearing cable tie holes
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+bearing_offset_x+19/2, offset_y=17+bearing_offset_y-5)
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+bearing_offset_x+19/2, offset_y=17+bearing_offset_y+10)
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+bearing_offset_x+19/2, offset_y=17-5)
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+bearing_offset_x+19/2, offset_y=17+10)
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+19/2, offset_y=17+bearing_offset_y-5)
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+19/2, offset_y=17+bearing_offset_y+10)
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+19/2, offset_y=17-5)
+laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+19/2, offset_y=17+10)
 
 
-laserbot.add_square_cut_out("base plate", width=200, height=130, orientation=1, x_y_z_position=(-20,0,56))
+
+#laserbot.add_square_cut_out("base plate", width=200, height=130, orientation=1, x_y_z_position=(-20,0,56))
 
 '''
 base_plate_width = 130
@@ -102,12 +126,12 @@ module nema17()
 
 
 
-translate([8,20,43])  bearing();
-translate([55,20,43])  bearing();
-translate([8,60,43])  bearing();
-translate([55,60,43])  bearing();
+#translate([ 8,20,41])  bearing();
+translate([55,20,41])  bearing();
+translate([ 8,60,41])  bearing();
+#translate([55,60,41])  bearing();
 
-translate([21,73,0])  nema17();
+*translate([21,73,0])  nema17();
 '''
 
 laserbot.rough_layout_2d()
