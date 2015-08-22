@@ -50,7 +50,7 @@ class model:
                 foundIndex = i
         return foundIndex
 
-    def rough_layout_2d(self):
+    def rough_layout_2d(self, max_width = 0):
         # max(y for x, y in l)
         max_sizes = []
         for laser_cut_out in self.laser_cut_outs:
@@ -60,7 +60,8 @@ class model:
             max_sizes.append((max_x, max_y))
         x_flat_place, y_flat_place = (0,0)
         y_inc_max = 0
-        max_width = max(x for x, y in max_sizes)
+        if max_width == 0:
+            max_width = max(x for x, y in max_sizes)
         for i in range(0, len(self.laser_cut_outs)):
             self.laser_cut_outs[i].x_y_flat_place = (x_flat_place, y_flat_place)
             x_inc, y_inc = max_sizes[i]
@@ -120,8 +121,19 @@ class model:
             print("No cutout for tab - raise exception")
 
     def add_box(self, name, width=200, height=50, depth=100, x_y_z_position=(0,0,0), number_sides=6, number_tabs=8):
-        sides = 1
+        # Make adjustments so that box bound inside width, height anf depth and at x,y,z position
         x, y, z = x_y_z_position
+        y = y + self.thickness
+        depth = depth - 2*self.thickness
+        height = height - self.thickness
+        if number_sides > 4:
+            x = x + self.thickness
+            width = width - self.thickness
+        if number_sides > 5:
+#            x = x + self.thickness
+            width = width - 2*self.thickness
+
+        # End Adjustments
         side_name = name + " 1"
         self.add_square_cut_out(side_name, width=width, height=depth, orientation=1, x_y_z_position=(x,y,z))
         self.add_tab(side_name, tab_type=5, tab_orientation="up", number=number_tabs)
@@ -163,17 +175,12 @@ class model:
             self.add_tab(side_name, tab_type=4, x=0, y=depth+self.thickness/2, tab_orientation="left")
             self.add_tab(side_name, tab_type=4, x=0, y=-self.thickness/2, tab_orientation="left")
             self.add_tab(side_name, tab_type=4, x=height-self.thickness/2, y=0, tab_orientation="down")
-        if number_sides > 4:
+        if number_sides > 5:
                 side_name_old = side_name 
                 side_name = name + " 4"
                 self.copy_laser_cut_out(side_name_old, side_name, (x+width+self.thickness,y,z+self.thickness))
 
-        '''
 
-box.add_tab("3", tab_type=4, x=0, y=-thickness/2, tab_orientation="left")
-box.add_tab("3", tab_type=4, x=50-thickness/2, y=0, tab_orientation="down")
-box.copy_laser_cut_out("3", "4", (200+thickness,0,thickness))
-'''
     def add_inner_cutout(self, name_of_cut_out, inner_points):
         foundIndex = self.find_cut_out(name_of_cut_out)
         if foundIndex !=-1:
@@ -278,14 +285,18 @@ box.copy_laser_cut_out("3", "4", (200+thickness,0,thickness))
                         path += "," + str(range(path_num, path_num+len(tab_points)))
                         path_num += len(tab_points)
                     if tab.tab_type == 2:
-                        tab_points = [(tab.x-t/2.0,tab.y-t/2.0), (tab.x+t/2.0,tab.y-t/2.0), (tab.x+t/2.0,tab.y+t/2.0),
-                                      (tab.x-t/2.0,tab.y+t/2.0), (tab.x-t/2.0,tab.y-t/2.0)]
+                        if tab.tab_orientation == "down" or tab.tab_orientation == "up":
+                            tab_points = [(tab.x,tab.y-t/2.0), (tab.x+t,tab.y-t/2.0), (tab.x+t,tab.y+t/2.0),
+                                          (tab.x,tab.y+t/2.0), (tab.x,tab.y-t/2.0)]
+                        else:
+                            tab_points = [(tab.x-t/2.0,tab.y-t/2.0), (tab.x+t/2.0,tab.y-t/2.0), (tab.x+t/2.0,tab.y+t/2.0),
+                                          (tab.x-t/2.0,tab.y+t/2.0), (tab.x-t/2.0,tab.y-t/2.0)]
                         points += self.polygon_points_format(tab_points)
                         path += "," + str(range(path_num, path_num+len(tab_points)))
                         path_num += len(tab_points)
                         if tab.tab_orientation == "down" or tab.tab_orientation == "up":
-                            tab_points = [(tab.x-t/2.0,tab.y+t*1.5), (tab.x-t/2.0+t,tab.y+t*1.5), (tab.x-t/2.0+t,tab.y+t*4.5),
-                                          (tab.x-t/2.0,tab.y+t*4.5), (tab.x-t/2.0,tab.y+t*1.5)]
+                            tab_points = [(tab.x,tab.y+t*1.5), (tab.x+t,tab.y+t*1.5), (tab.x+t,tab.y+t*4.5),
+                                          (tab.x,tab.y+t*4.5), (tab.x,tab.y+t*1.5)]
                         else:
                             tab_points = [(tab.x+t*1.5,tab.y-t/2.0), (tab.x+t*1.5,tab.y-t/2.0+t), (tab.x+t*4.5,tab.y-t/2.0+t),
                                           (tab.x+t*4.5,tab.y-t/2.0), (tab.x+t*1.5,tab.y-t/2.0)]
@@ -293,8 +304,8 @@ box.copy_laser_cut_out("3", "4", (200+thickness,0,thickness))
                         path += "," + str(range(path_num, path_num+len(tab_points)))
                         path_num += len(tab_points)
                         if tab.tab_orientation == "down" or tab.tab_orientation == "up":
-                            tab_points = [(tab.x-t/2.0,tab.y+t*1.5-t*6), (tab.x-t/2.0+t,tab.y+t*1.5-t*6), (tab.x-t/2.0+t,tab.y+t*4.5-t*6),
-                                          (tab.x-t/2.0,tab.y+t*4.5-t*6), (tab.x-t/2.0,tab.y+t*1.5-t*6)]
+                            tab_points = [(tab.x,tab.y+t*1.5-t*6), (tab.x+t,tab.y+t*1.5-t*6), (tab.x+t,tab.y+t*4.5-t*6),
+                                          (tab.x,tab.y+t*4.5-t*6), (tab.x,tab.y+t*1.5-t*6)]
                         else:
                             tab_points = [(tab.x+t*1.5-t*6,tab.y-t/2.0), (tab.x+t*1.5-t*6,tab.y-t/2.0+t), (tab.x+t*4.5-t*6,tab.y-t/2.0+t),
                                           (tab.x+t*4.5-t*6,tab.y-t/2.0), (tab.x+t*1.5-t*6,tab.y-t/2.0)]
