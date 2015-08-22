@@ -119,6 +119,61 @@ class model:
         else:
             print("No cutout for tab - raise exception")
 
+    def add_box(self, name, width=200, height=50, depth=100, x_y_z_position=(0,0,0), number_sides=6, number_tabs=8):
+        sides = 1
+        x, y, z = x_y_z_position
+        side_name = name + " 1"
+        self.add_square_cut_out(side_name, width=width, height=depth, orientation=1, x_y_z_position=(x,y,z))
+        self.add_tab(side_name, tab_type=5, tab_orientation="up", number=number_tabs)
+        self.add_tab(side_name, tab_type=5, tab_orientation="down", number=number_tabs)
+        if number_sides > 4:
+            self.add_tab(side_name, tab_type=5, tab_orientation="left", number=number_tabs)
+        if number_sides > 5:
+            self.add_tab(side_name, tab_type=5, tab_orientation="right", number=number_tabs)
+        if number_sides > 1:
+            side_name_old = side_name 
+            side_name = name + " 6"
+            # Note dice sides, so the first four are 1,6, 2,5, followed by 3,4
+            self.copy_laser_cut_out(side_name_old, side_name, (x,y,z+height))
+            if number_sides > 4:
+                self.add_tab(side_name, tab_type=4, x=0, y=depth+self.thickness/2, tab_orientation="left")
+            if number_sides > 5:
+                self.add_tab(side_name, tab_type=4, x=width, y=depth+self.thickness/2, tab_orientation="right")
+        if number_sides > 2:
+            side_name = name + " 2"
+            self.add_square_cut_out(side_name, width=width, height=height-self.thickness, orientation=3, x_y_z_position=(x,y,z+self.thickness))
+            self.add_tab(side_name, tab_type=6, tab_orientation="up", number=number_tabs)
+            self.add_tab(side_name, tab_type=6, tab_orientation="down", number=number_tabs)
+            if number_sides > 4:
+                self.add_tab(side_name, tab_type=5, tab_orientation="left", number=number_tabs)
+            if number_sides > 5:
+                self.add_tab(side_name, tab_type=5, tab_orientation="right", number=number_tabs)
+            if number_sides > 3:
+                side_name_old = side_name 
+                side_name = name + " 5"
+                self.copy_laser_cut_out(side_name_old, side_name, (x,y+depth+self.thickness,z+self.thickness))
+        if number_sides > 4:
+            side_name = name + " 3"
+            self.add_square_cut_out(side_name, width=height-self.thickness, height=depth, orientation=2, x_y_z_position=(x,y,z+self.thickness))
+            self.add_tab(side_name, tab_type=6, tab_orientation="up", number=number_tabs)
+            self.add_tab(side_name, tab_type=6, tab_orientation="down", number=number_tabs)
+            self.add_tab(side_name, tab_type=6, tab_orientation="left", number=number_tabs)
+            self.add_tab(side_name, tab_type=6, tab_orientation="right", number=number_tabs)
+            # The missing squares
+            self.add_tab(side_name, tab_type=4, x=0, y=depth+self.thickness/2, tab_orientation="left")
+            self.add_tab(side_name, tab_type=4, x=0, y=-self.thickness/2, tab_orientation="left")
+            self.add_tab(side_name, tab_type=4, x=height-self.thickness/2, y=0, tab_orientation="down")
+        if number_sides > 4:
+                side_name_old = side_name 
+                side_name = name + " 4"
+                self.copy_laser_cut_out(side_name_old, side_name, (x+width+self.thickness,y,z+self.thickness))
+
+        '''
+
+box.add_tab("3", tab_type=4, x=0, y=-thickness/2, tab_orientation="left")
+box.add_tab("3", tab_type=4, x=50-thickness/2, y=0, tab_orientation="down")
+box.copy_laser_cut_out("3", "4", (200+thickness,0,thickness))
+'''
     def add_inner_cutout(self, name_of_cut_out, inner_points):
         foundIndex = self.find_cut_out(name_of_cut_out)
         if foundIndex !=-1:
@@ -137,7 +192,7 @@ class model:
             x, y = point
             rpoints += "[" + str(x) + "," + str(y) + "],"
         return rpoints
-    def write_scad_file(self, filename, three_d=True, text=True):
+    def write_scad_file(self, filename, three_d=True, text=True, text_scale=1):
         output = "// Made with lasercutmodel.py \n\n\n"
         if not three_d:
             output += "projection(cut = false)\n union() {\n"
@@ -293,7 +348,6 @@ class model:
                             end_y = max_y
                             inc_y = (end_y - start_y)/float(tab.number*2)
                             inc_x = t
-                            print min_x, tab.tab_orientation
                         if tab.tab_orientation == "right":
                             start_x = max_x-t
                             start_y = min_y
@@ -312,11 +366,11 @@ class model:
                                                   (start_x, start_y+inc_y), (start_x, start_y)]
                             if (tab.tab_orientation == "left") or (tab.tab_orientation == "right"):
                                 if tab.tab_type == 5:
-                                    tab_points = [(start_x+inc_x, start_y), (start_x+inc_x*2, start_y), (start_x+inc_x*2, start_y+inc_y),
-                                                  (start_x+inc_x, start_y+inc_y), (start_x+inc_x, start_y)]
-                                if tab.tab_type == 9:
-                                    tab_points = [(start_x, start_y), (start_x+inc_x, start_y), (start_x+inc_x, start_y+inc_y),
-                                                  (start_x, start_y+inc_y), (start_x, start_y)]
+                                    tab_points = [(start_x+inc_x, start_y+inc_y), (start_x+inc_x*2, start_y+inc_y), (start_x+inc_x*2, start_y+inc_y+inc_y),
+                                                  (start_x+inc_x, start_y+inc_y+inc_y), (start_x+inc_x, start_y+inc_y)]
+                                if tab.tab_type == 6:
+                                    tab_points = [(start_x+t, start_y), (start_x+inc_x+t, start_y), (start_x+inc_x+t, start_y+inc_y),
+                                                  (start_x+t, start_y+inc_y), (start_x+t, start_y)]
 
 
                             if tab.tab_orientation == "up" or tab.tab_orientation == "down":
@@ -333,7 +387,7 @@ class model:
             output += "\t\t\t\t} // End union \n"
             if text:
                 t = str(self.thickness)
-                output += '\t\t\t\ttranslate(['+t+','+t+',-'+t+'/2]) linear_extrude(height = ' + t + '*2)  text("' + laser_cut_out.name + '", size='+t+'); \n'
+                output += '\t\t\t\ttranslate(['+t+','+t+',-'+t+'/2]) linear_extrude(height = ' + t + '*2)  text("' + laser_cut_out.name + '", size='+t+'*'+str(text_scale)+'); \n'
             output += "\t\t\t} // End difference \n"
             output += "\t\t} // End rotate \n"
             output += "\t} // End translate \n"
