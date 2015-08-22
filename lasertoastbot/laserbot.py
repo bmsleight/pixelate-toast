@@ -56,7 +56,42 @@ laserbot.add_inner_cutout_square("bearing base", width=4, height=2, offset_x=8+1
 
 
 
-#laserbot.add_square_cut_out("base plate", width=200, height=130, orientation=1, x_y_z_position=(-20,0,56))
+laserbot.add_square_cut_out("base plate", width=200, height=73, orientation=1, x_y_z_position=(-20,6,40))
+#bearing space
+laserbot.add_inner_cutout_square("base plate", width=170, height=14, offset_x=(200-170)/2, offset_y=7)
+#Support rods
+laserbot.add_inner_cutout_square("base plate", width=7, height=6, offset_x=(200-184)/2, offset_y=11)
+laserbot.add_inner_cutout_square("base plate", width=7, height=6, offset_x=200-(200-184)/2-7, offset_y=11)
+#Support rods cable tie holes
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=200-(200-184)/2-7+3, offset_y=5)
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=200-(200-184)/2-7+3, offset_y=5+15)
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=(200-184)/2, offset_y=5)
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=(200-184)/2, offset_y=5+15)
+
+#bearing space
+laserbot.add_inner_cutout_square("base plate", width=170, height=14, offset_x=(200-170)/2, offset_y=7+bearing_offset_y)
+#Support rods
+laserbot.add_inner_cutout_square("base plate", width=7, height=6, offset_x=(200-184)/2, offset_y=11+bearing_offset_y)
+laserbot.add_inner_cutout_square("base plate", width=7, height=6, offset_x=200-(200-184)/2-7, offset_y=11+bearing_offset_y)
+#Support rods cable tie holes
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=200-(200-184)/2-7+3, offset_y=5+bearing_offset_y)
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=200-(200-184)/2-7+3, offset_y=5+15+bearing_offset_y)
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=(200-184)/2, offset_y=5+bearing_offset_y)
+laserbot.add_inner_cutout_square("base plate", width=4, height=2, offset_x=(200-184)/2, offset_y=5+15+bearing_offset_y)
+
+laserbot.add_square_cut_out("base plate support", width=6, height=73, orientation=2, x_y_z_position=(-20+thickness*2,6,40+thickness))
+laserbot.add_tab("base plate support", tab_type=4, x=0, y=25, tab_orientation="left")
+laserbot.add_tab("base plate support", tab_type=4, x=0, y=50, tab_orientation="left")
+laserbot.add_tab("base plate support", tab_type=4, x=6, y=25, tab_orientation="right")
+laserbot.add_tab("base plate support", tab_type=4, x=6, y=50, tab_orientation="right")
+laserbot.add_tab("base plate", tab_type=4, x=thickness*2, y=25, tab_orientation="left")
+laserbot.add_tab("base plate", tab_type=4, x=thickness*2, y=50, tab_orientation="left")
+laserbot.add_tab("base plate", tab_type=4, x=200-thickness, y=25, tab_orientation="left")
+laserbot.add_tab("base plate", tab_type=4, x=200-thickness, y=50, tab_orientation="left")
+laserbot.copy_laser_cut_out("base plate support", "base plate support 2", x_y_z_position=(-20-thickness+200,6,40+thickness))
+
+
+laserbot.add_square_cut_out("toast plate", width=200, height=130, orientation=1, x_y_z_position=(-20,6-(130-73)/2,40+6+thickness))
 
 '''
 base_plate_width = 130
@@ -126,12 +161,15 @@ module nema17()
 
 
 
-#translate([ 8,20,41])  bearing();
+translate([ 8,20,41])  bearing();
 translate([55,20,41])  bearing();
 translate([ 8,60,41])  bearing();
-#translate([55,60,41])  bearing();
+translate([55,60,41])  bearing();
 
 *translate([21,73,0])  nema17();
+// Cog
+translate([42,94,40])  rotate([0,0,0])  color("orange") cylinder(h = 3.1, d=30,  center = false);
+
 '''
 
 laserbot.rough_layout_2d()
