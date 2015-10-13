@@ -22,11 +22,11 @@ module topPlate()
 {
     lasercutoutSquare(thickness=thickness, x=overall_x, y=overall_y,
         cutouts = [[10,50+12.6/2,100,100]],
-            captive_nuts=[
-                [DOWN, overall_x/2, 0],
-                [UP, overall_x/5, overall_y],
-                [UP, overall_x-overall_x/5, overall_y],
-                ]
+        captive_nuts=[
+            [DOWN, overall_x/2, 0],
+            [UP, overall_x/5, overall_y],
+            [UP, overall_x-overall_x/5, overall_y],
+            ]
     ); 
 }
 
@@ -38,6 +38,9 @@ module bottomPlate()
                 [DOWN, overall_x/2, 0],
                 [UP, overall_x/5, overall_y],
                 [UP, overall_x-overall_x/5, overall_y],
+                ],
+            captive_nut_holes=[
+                [LEFT,overall_x/2,overall_y-42]
                 ]
         ); 
 }
@@ -53,9 +56,46 @@ module squeezePlate()
         ); 
 }
 
+module liftSupport()
+{
+    translate([overall_x/2+thickness,overall_y-42-thickness*6,15+thickness]) 
+        {
+            rotate([90,0,90]) 
+                lasercutoutSquare(thickness=thickness, x=61, y=20,
+                    cutouts = [
+                        [32,0,24.5,12.7]
+                        ],
+                    slits=[
+                        [DOWN,thickness*3/2,0,10]
+                        ]
+                );
+            translate([-thickness*4, thickness*2, 0]) rotate([90,0,0]) 
+                liftSupportBeam();
+        }
+}
+
+module liftSupportBeam()
+{
+    lasercutoutSquare(thickness=thickness, x=thickness*6, y=30,
+        simple_tabs=[
+                [DOWN, thickness*5/2,0]
+            ],
+        slits=[
+                [UP,thickness*9/2,30,20]
+        ]
+
+        );
+}
+
+
+
 module leg()
 {
-    lasercutoutSquare(thickness=thickness, x=thickness*12, y=toast_thick+15+thickness*2+10
+    lasercutoutSquare(thickness=thickness, x=thickness*12, y=toast_thick+15+thickness*2+10,
+            captive_nut_holes=[
+                [UP,thickness*12/2,(toast_thick+15+thickness*2+10)],
+                [UP,thickness*12/2,(toast_thick+thickness*2+10)]
+                ]
         );
 }
 
@@ -70,7 +110,7 @@ module servoXY()
 {
     translate([20,12.6,22.8+15-1]) rotate([180,0,0]) servoSG90();
     translate([overall_x-20,0,22.8+15-1]) rotate([180,0,180]) servoSG90();
-    translate([overall_x/2+17,overall_y-thickness*2,41]) rotate([0,90,180]) servoSG90();
+    translate([overall_x/2+25,overall_y-thickness-1.7,18]) rotate([90,0,270]) servoSG90();
 }
 
 color("Khaki",0.5)
@@ -78,6 +118,7 @@ color("Khaki",0.5)
     topPlate();
     bottomPlate();
     squeezePlate();
+    liftSupport();
     legs();
 }
 
