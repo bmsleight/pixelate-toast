@@ -41,6 +41,9 @@ module bottomPlate()
                 ],
             captive_nut_holes=[
                 [LEFT,overall_x/2,overall_y-42]
+                ],
+            simple_tab_holes=[
+                [MID,overall_x/2-thickness,overall_y-42-thickness*5]
                 ]
         ); 
 }
@@ -63,10 +66,13 @@ module liftSupport()
             rotate([90,0,90]) 
                 lasercutoutSquare(thickness=thickness, x=61, y=20,
                     cutouts = [
-                        [32,0,24.5,12.7]
+                            [32,0,24.5,12.7]
                         ],
                     slits=[
-                        [DOWN,thickness*3/2,0,10]
+                            [DOWN,thickness*3/2,0,10]
+                        ],
+                    captive_nuts=[
+                            [DOWN, thickness*6, 0]
                         ]
                 );
             translate([-thickness*4, thickness*2, 0]) rotate([90,0,0]) 
@@ -81,9 +87,9 @@ module liftSupportBeam()
                 [DOWN, thickness*5/2,0]
             ],
         slits=[
-                [UP,thickness*9/2,30,20]
-        ]
-
+                [UP,thickness*9/2,30,20],
+                [UP,thickness*4/2,30,thickness]
+            ]
         );
 }
 
