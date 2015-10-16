@@ -14,9 +14,30 @@ window_y = 100;
 
 toast_thick = 20; //14 + 6mm space
 
+squeeze_x = 120;
+squeeze_y = 150-5;
+location_y = 50+12.6/2-20;
 
-
-
+circles_remove_cables = [
+                [thickness, overall_x/2, (overall_y + location_y)/2],
+                [thickness/2, overall_x/2 - squeeze_x/2 + 10, (overall_y + location_y)/2- squeeze_y/2 + 10],
+                [thickness/2, overall_x/2 - squeeze_x/2 + 10, (overall_y + location_y)/2 +squeeze_y/2 - 10],
+                [thickness/2, overall_x/2 + squeeze_x/2 - 10, (overall_y + location_y)/2- squeeze_y/2 + 10],
+                [thickness/2, overall_x/2 + squeeze_x/2 - 10, (overall_y + location_y)/2 +squeeze_y/2 - 10],
+                // Half way of the above
+                [thickness/2, overall_x/2 - squeeze_x/4 + 10/2, (overall_y + location_y)/2- squeeze_y/4 + 10/2],
+                [thickness/2, overall_x/2 - squeeze_x/4 + 10/2, (overall_y + location_y)/2 +squeeze_y/4 - 10/2],
+                [thickness/2, overall_x/2 + squeeze_x/4 - 10/2, (overall_y + location_y)/2- squeeze_y/4 + 10/2],
+                [thickness/2, overall_x/2 + squeeze_x/4 - 10/2, (overall_y + location_y)/2 +squeeze_y/4 - 10/2],
+                
+                ];
+                
+circles_remove_cables_squeeze = [
+                [thickness/2, 10, 10],
+                [thickness/2, 10, squeeze_y - 10],
+                [thickness/2, squeeze_x - 10, 10],
+                [thickness/2, squeeze_x - 10, squeeze_y - 10],
+                ];
 
 module topPlate()
 {
@@ -26,7 +47,8 @@ module topPlate()
             [DOWN, overall_x/2, 0],
             [UP, overall_x/5, overall_y],
             [UP, overall_x-overall_x/5, overall_y],
-            ]
+            ],
+        circles_remove = circles_remove_cables
     ); 
 }
 
@@ -44,8 +66,9 @@ module bottomPlate()
                 ],
             simple_tab_holes=[
                 [MID,overall_x/2-thickness,overall_y-42-thickness*5]
-                ]
-        ); 
+                ],
+            circles_remove = circles_remove_cables
+    ); 
 }
 
 module squeezePlate()
@@ -54,8 +77,9 @@ module squeezePlate()
     // includign the pillar used to lift
     // Size of bread - http://pt.barwap.com/size-of-bread.html
     // 140mm by 110mm by 14mm.
-    translate([0,50+12.6/2-20,-toast_thick])
-        lasercutoutSquare(thickness=thickness, x=120, y=150-5
+    translate([0,location_y+2.5,-toast_thick]) //dont ask me why +2.5
+        lasercutoutSquare(thickness=thickness, x=squeeze_x, y=squeeze_y,
+                circles_remove = circles_remove_cables_squeeze
         ); 
 }
 
