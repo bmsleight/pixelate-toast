@@ -3,6 +3,9 @@ include <lasercut.scad>;
 // http://www.thingiverse.com/thing:697243
 include <sg90.scad>;
 
+include <arms_and_poker.scad>;
+
+$fn=60;
 thickness=3.1;
 
 // top gap, window, offset for arm, half of server 
@@ -38,6 +41,15 @@ circles_remove_cables_squeeze = [
                 [thickness/2, squeeze_x - 10, 10],
                 [thickness/2, squeeze_x - 10, squeeze_y - 10],
                 ];
+                
+sg90_pair_mount_holes_remove = [
+                [1,17.25,6.3],
+                [1,45.50,6.3],                
+                // 2nd Servo
+                [1,74.5,6.3],                
+                [1,74.5+28.25,6.3],                
+                ];
+
 
 module topPlate()
 {
@@ -67,7 +79,7 @@ module bottomPlate()
             simple_tab_holes=[
                 [MID,overall_x/2-thickness,overall_y-42-thickness*5]
                 ],
-            circles_remove = circles_remove_cables
+            circles_remove = concat(circles_remove_cables, sg90_pair_mount_holes_remove)
     ); 
 }
 
@@ -97,6 +109,11 @@ module liftSupport()
                         ],
                     captive_nuts=[
                             [DOWN, thickness*6, 0]
+                        ],
+                    circles_remove = [
+                        [1, 30, 6],
+                        [1, 30+28.5, 6]
+
                         ]
                 );
             translate([-thickness*4, thickness*2, 0]) rotate([90,0,0]) 
@@ -136,6 +153,7 @@ module legs()
     translate([overall_x-overall_x/5-thickness*12/2,overall_y+thickness,-toast_thick-10]) rotate([90,0,0]) leg();
 }
 
+
 module servoXY()
 {
     translate([20,12.6,22.8+15-1]) rotate([180,0,0]) servoSG90();
@@ -150,6 +168,9 @@ color("Khaki",0.5)
     squeezePlate();
     liftSupport();
     legs();
+    translate([-150,0,0]) rotate([0,0,90]) arm();
 }
 
 servoXY();
+
+//TO DO SERVER MOUNTING SCREWS
