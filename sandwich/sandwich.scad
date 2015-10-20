@@ -79,7 +79,10 @@ module bottomPlate()
             simple_tab_holes=[
                 [MID,overall_x/2-thickness,overall_y-42-thickness*5]
                 ],
-            circles_remove = concat(circles_remove_cables, sg90_pair_mount_holes_remove)
+            circles_remove = concat(circles_remove_cables, sg90_pair_mount_holes_remove),      cutouts = [
+                [19,0,24.5,12.7],
+                [76.5,0,24.5,12.7]
+            ]
     ); 
 }
 
